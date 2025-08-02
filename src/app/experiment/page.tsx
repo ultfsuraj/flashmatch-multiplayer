@@ -1,5 +1,3 @@
-'use client';
-
 import TextReveal from ' @/app/experiment/TextReveal';
 
 const Page = () => {
