@@ -3,6 +3,17 @@
 import { motion, useAnimation } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 
+const COLORS: Record<number, string> = {
+  0: '#ffe6d2',
+  1: '#cc66cc',
+  2: '#ffb400',
+  3: '#c73b32',
+  4: '#32b4ff',
+  5: '#995f3d',
+  6: '#0ac832',
+  7: '#1e2832',
+};
+
 const getRadius = (w: number, h: number) => {
   if (h < 2 * w) return 0;
   return (h * h - 4 * w * w) / (8 * w) + w;
@@ -27,7 +38,7 @@ const CircularGalary = () => {
   const [w, setW] = useState(0);
   const [h, setH] = useState(0);
   const [chordAngle, setChordAngle] = useState(0);
-  const [POSITIONS, setPOSITIONS] = useState<{ id: number; x: number; y: number; scale: number; color: string }[]>([]);
+  const [POSITIONS, setPOSITIONS] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
 
   useEffect(() => {
     const width = containerRef.current?.offsetWidth || 0;
@@ -41,38 +52,14 @@ const CircularGalary = () => {
 
   useEffect(() => {
     setPOSITIONS([
-      { id: 0, x: circX(-chordAngle / 2 - 1), y: circY(-chordAngle / 2 - 1), scale: 0.25, color: '#ffe6d2' },
-      {
-        id: 1,
-        x: circX(-(23 * (chordAngle / 2)) / 30),
-        y: circY(-(23 * (chordAngle / 2)) / 30),
-        scale: 0.45,
-        color: '#cc66cc',
-      },
-      {
-        id: 2,
-        x: circX(-(13 * (chordAngle / 2)) / 30),
-        y: circY(-(13 * (chordAngle / 2)) / 30),
-        scale: 0.7,
-        color: '#ffb400',
-      },
-      { id: 3, x: circX(0), y: circY(0), scale: 1, color: '#c73b32' },
-      {
-        id: 4,
-        x: circX((13 * (chordAngle / 2)) / 30),
-        y: circY((13 * (chordAngle / 2)) / 30),
-        scale: 0.7,
-        color: '#32b4ff',
-      },
-      {
-        id: 5,
-        x: circX((23 * (chordAngle / 2)) / 30),
-        y: circY((23 * (chordAngle / 2)) / 30),
-        scale: 0.45,
-        color: '#995f3d',
-      },
-      { id: 6, x: circX(chordAngle / 2 + 1), y: circY(chordAngle / 2 + 1), scale: 0.25, color: '#0ac832' },
-      { id: 7, x: circX(chordAngle), y: circY(chordAngle), scale: 0.1, color: '#1e2832' },
+      { id: 0, x: circX(-chordAngle / 2 - 1), y: circY(-chordAngle / 2 - 1), scale: 0.25 },
+      { id: 1, x: circX(-(23 * (chordAngle / 2)) / 30), y: circY(-(23 * (chordAngle / 2)) / 30), scale: 0.45 },
+      { id: 2, x: circX(-(13 * (chordAngle / 2)) / 30), y: circY(-(13 * (chordAngle / 2)) / 30), scale: 0.7 },
+      { id: 3, x: circX(0), y: circY(0), scale: 1 },
+      { id: 4, x: circX((13 * (chordAngle / 2)) / 30), y: circY((13 * (chordAngle / 2)) / 30), scale: 0.7 },
+      { id: 5, x: circX((23 * (chordAngle / 2)) / 30), y: circY((23 * (chordAngle / 2)) / 30), scale: 0.45 },
+      { id: 6, x: circX(chordAngle / 2 + 1), y: circY(chordAngle / 2 + 1), scale: 0.25 },
+      { id: 7, x: circX(chordAngle), y: circY(chordAngle), scale: 0.1 },
     ]);
   }, [chordAngle]);
 
@@ -91,7 +78,7 @@ const CircularGalary = () => {
       )
     );
 
-    const newPositions = JSON.parse(JSON.stringify(POSITIONS));
+    const newPositions = [...POSITIONS];
     if (down) {
       newPositions.push(newPositions[0]);
       newPositions.splice(0, 1);
@@ -106,7 +93,6 @@ const CircularGalary = () => {
       }
     }
     setPOSITIONS(newPositions);
-    console.log(newPositions);
   };
 
   return (
@@ -136,12 +122,11 @@ const CircularGalary = () => {
         {POSITIONS.map((pos, index) => (
           <motion.div
             key={pos.id}
-            className="absolute h-32 w-32 rounded-full bg-zinc-700"
+            className="flex-center absolute h-32 w-32 rounded-full bg-zinc-700"
             style={{
               x: pos.x,
               y: pos.y,
               scale: pos.scale,
-              backgroundColor: pos.color,
             }}
             animate={controlsARR.current[pos.id]}
             drag="y"
@@ -153,7 +138,9 @@ const CircularGalary = () => {
             onClick={() => {
               console.log(pos);
             }}
-          ></motion.div>
+          >
+            <div className="h-full w-full rounded-full" style={{ backgroundColor: COLORS[pos.id] }}></div>
+          </motion.div>
         ))}
       </motion.div>
     </div>
