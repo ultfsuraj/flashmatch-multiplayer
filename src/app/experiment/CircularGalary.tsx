@@ -59,7 +59,7 @@ const CircularGalary = () => {
       { id: 4, x: circX((13 * (chordAngle / 2)) / 30), y: circY((13 * (chordAngle / 2)) / 30), scale: 0.7 },
       { id: 5, x: circX((23 * (chordAngle / 2)) / 30), y: circY((23 * (chordAngle / 2)) / 30), scale: 0.45 },
       { id: 6, x: circX(chordAngle / 2 + 1), y: circY(chordAngle / 2 + 1), scale: 0.25 },
-      { id: 7, x: circX(chordAngle), y: circY(chordAngle), scale: 0.1 },
+      { id: 7, x: circX(-chordAngle), y: circY(-chordAngle), scale: 0.1 },
     ]);
   }, [chordAngle]);
 
@@ -73,7 +73,7 @@ const CircularGalary = () => {
       controlsARR.current.map((control, index) =>
         control.start({
           ...POSITIONS[(index + (down ? 1 : -1) + len) % len],
-          transition: { duration: 0.4, ease: 'easeInOut' },
+          transition: { type: 'spring', duration: 0.4, bounce: 0.3 },
         })
       )
     );
@@ -98,7 +98,7 @@ const CircularGalary = () => {
   return (
     <div ref={containerRef} className="mt-[7vh] h-[85vh] w-[65vw]">
       <motion.div
-        className="relative rounded-full bg-teal-200"
+        className="relative rounded-full bg-teal-300"
         style={{
           height: 2 * r,
           width: 2 * r,
