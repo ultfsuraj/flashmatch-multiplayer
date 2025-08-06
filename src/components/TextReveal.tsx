@@ -19,7 +19,7 @@ const TextReveal = ({ text }: { text: string }) => {
         { clipPath: 'inset(0 0% 0 0)' },
         { type: 'tween', ease: 'easeOut', duration: 0.3 }
       );
-    }, 900);
+    }, 700);
   }, []);
 
   return (
