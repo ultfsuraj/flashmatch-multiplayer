@@ -19,7 +19,7 @@ const getRadius = (w: number, h: number) => {
   return (h * h - 4 * w * w) / (8 * w) + w;
 };
 
-const CircularGalary = () => {
+const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const div1Ref = useRef<HTMLDivElement>(null);
 
@@ -41,6 +41,7 @@ const CircularGalary = () => {
   const [POSITIONS, setPOSITIONS] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
 
   useEffect(() => {
+    isReady();
     const width = containerRef.current?.offsetWidth || 0;
     const height = containerRef.current?.offsetHeight || 0;
     const radius = getRadius(width, height);
@@ -147,4 +148,4 @@ const CircularGalary = () => {
   );
 };
 
-export default CircularGalary;
+export default CircularLinks;

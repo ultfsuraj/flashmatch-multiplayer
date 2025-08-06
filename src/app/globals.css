@@ -12,7 +12,3 @@
 @utility font-montserrat {
   font-family: var(--font-montserrat), sans-serif;
 }
-
-* {
-  overflow: hidden;
-}

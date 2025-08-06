@@ -1,44 +1,35 @@
 'use client';
 
 import { motion, useAnimate } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const TextReveal = ({ text }: { text: string }) => {
-  const [isMounted, setIsMounted] = useState<boolean>(false);
   const [txtScope, txtAnimate] = useAnimate();
 
   useEffect(() => {
-    document.getElementById('experiment-skeleton')!.style.display = 'none';
-    setIsMounted(true);
-    // without setTimeout, this component is mounted but with null value, so
-    // text reveal animation won't work scope.current = null,
-    // it's only after component mounted, state changed skeleton removed, only then
-    // we should run txtAnimate (scope.current is not null)
     setTimeout(async () => {
       await txtAnimate(
         txtScope.current,
         { clipPath: 'inset(0 30% 0 0)' },
-        { type: 'spring', stiffness: 100, damping: 30, mass: 5, duration: 1 }
+        { type: 'spring', stiffness: 200, damping: 30, mass: 3 }
       );
 
       await txtAnimate(
         txtScope.current,
         { clipPath: 'inset(0 0% 0 0)' },
-        { type: 'tween', ease: 'easeOut', duration: 0.5 }
+        { type: 'tween', ease: 'easeOut', duration: 0.3 }
       );
-    }, 1500);
+    }, 900);
   }, []);
 
-  if (!isMounted) return null;
-
   return (
-    <div className="flex-center relative h-[100vh] w-full bg-neutral-50" id="suraj">
+    <div className="flex-center relative h-[100vh] w-full overflow-hidden bg-neutral-50" id="suraj">
       <motion.div
         className="absolute -top-1 h-[40vh] w-full rounded-md bg-black"
         initial={{ x: '-100%' }}
         animate={{ x: '-20%' }}
         transition={{
-          duration: 2,
+          duration: 1,
           ease: 'easeOut',
         }}
       />
@@ -47,7 +38,7 @@ const TextReveal = ({ text }: { text: string }) => {
         initial={{ height: '0' }}
         animate={{ height: '50vh' }}
         transition={{
-          duration: 2,
+          duration: 1,
           ease: 'easeOut',
         }}
       />
@@ -65,7 +56,7 @@ const TextReveal = ({ text }: { text: string }) => {
         initial={{ x: '100%' }}
         animate={{ x: '20%' }}
         transition={{
-          duration: 2,
+          duration: 1,
           ease: 'easeOut',
         }}
       />
@@ -74,7 +65,7 @@ const TextReveal = ({ text }: { text: string }) => {
         initial={{ height: '0' }}
         animate={{ height: '50vh' }}
         transition={{
-          duration: 2,
+          duration: 1,
           ease: 'easeOut',
         }}
       />
