@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'motion/react';
 
 const CircularLinks = lazy(() => import(' @/components/CircularLinks'));
 
-const Container = () => {
+const HomeContainer = () => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
 
@@ -36,4 +36,4 @@ const Container = () => {
   );
 };
 
-export default Container;
+export default HomeContainer;

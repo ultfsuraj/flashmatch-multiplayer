@@ -1,17 +1,16 @@
-import TextReveal from ' @/components/TextReveal';
 import { seoText1, seoText2 } from ' @/utils/constants';
+
+import HomeContainer from ' @/containers/HomeContainer';
 
 const Page = () => {
   return (
-    <div className="flex-center h-[100vh] w-full">
-      <div id="experiment-skeleton">
-        {/* for seo */}
+    <div className="h-[100vh] w-full overflow-hidden">
+      <div id="experiment-skeleton" className="flex-center h-full w-full">
         <p className="text-[1px] text-transparent">{seoText1}</p>
         <p className="font-bangers px-2 text-center text-3xl font-semibold">Loading...</p>
-        {/* for seo */}
         <p className="text-[1px] text-transparent">{seoText2}</p>
       </div>
-      <TextReveal text="Flash Match" />
+      <HomeContainer />
     </div>
   );
 };
