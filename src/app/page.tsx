@@ -1,9 +1,17 @@
-import React from 'react';
+import TextReveal from ' @/components/TextReveal';
+import { seoText1, seoText2 } from ' @/utils/constants';
 
 const Page = () => {
   return (
-    <div className="flex-center h-full w-full px-20 py-10">
-      <h1 className="text-2xl font-bold">Flash Match Multiplayer</h1>
+    <div className="flex-center h-[100vh] w-full">
+      <div id="experiment-skeleton">
+        {/* for seo */}
+        <p className="text-[1px] text-transparent">{seoText1}</p>
+        <p className="font-bangers px-2 text-center text-3xl font-semibold">Loading...</p>
+        {/* for seo */}
+        <p className="text-[1px] text-transparent">{seoText2}</p>
+      </div>
+      <TextReveal text="Flash Match" />
     </div>
   );
 };
