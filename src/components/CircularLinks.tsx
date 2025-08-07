@@ -1,7 +1,26 @@
 'use client';
 
 import { motion, useAnimation } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, useEffect, useRef, useState } from 'react';
+
+import LazyComponent from ' @/components/LazyComponent';
+
+// const Dynamic = lazy(
+//   () =>
+//     new Promise<typeof import(' @/components/Lazy1')>((resolve) =>
+//       setTimeout(() => resolve(import(' @/components/Lazy1')), 3000)
+//     )
+// );
+
+const DYNAMIC_COMPONENTS = new Array(8);
+for (let i = 0; i < 8; i++) {
+  DYNAMIC_COMPONENTS[i] = lazy(
+    () =>
+      new Promise<typeof import(' @/components/Lazy1')>((resolve) =>
+        setTimeout(() => resolve(import(' @/components/Lazy1')), 3000)
+      )
+  );
+}
 
 const COLORS: Record<number, string> = {
   0: '#ffe6d2',
@@ -98,6 +117,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
 
   return (
     <div ref={containerRef} className="mt-[7vh] h-[85vh] w-[65vw]">
+      {/* circle */}
       <motion.div
         className="relative rounded-full bg-teal-300"
         style={{
@@ -120,29 +140,37 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
 
         {/* items */}
 
-        {POSITIONS.map((pos, index) => (
-          <motion.div
-            key={pos.id}
-            className="flex-center absolute h-32 w-32 rounded-full bg-zinc-700"
-            style={{
-              x: pos.x,
-              y: pos.y,
-              scale: pos.scale,
-            }}
-            animate={controlsARR.current[pos.id]}
-            drag="y"
-            dragConstraints={{ top: pos.y, bottom: pos.y }}
-            dragElastic={0.03}
-            onDragEnd={(event, info) => {
-              handleDragEnd(info.velocity.y > 0);
-            }}
-            onClick={() => {
-              console.log(pos.id);
-            }}
-          >
-            <div className="h-full w-full rounded-full" style={{ backgroundColor: COLORS[pos.id] }}></div>
-          </motion.div>
-        ))}
+        {POSITIONS.map((pos, index) => {
+          const Dynamic = DYNAMIC_COMPONENTS[index];
+
+          return (
+            <motion.div
+              key={pos.id}
+              className="flex-center absolute h-32 w-32 rounded-full bg-zinc-700"
+              style={{
+                x: pos.x,
+                y: pos.y,
+                scale: pos.scale,
+              }}
+              animate={controlsARR.current[pos.id]}
+              drag="y"
+              dragConstraints={{ top: pos.y, bottom: pos.y }}
+              dragElastic={0.03}
+              onDragEnd={(event, info) => {
+                handleDragEnd(info.velocity.y > 0);
+              }}
+              onClick={() => {
+                console.log(pos.id);
+              }}
+            >
+              <div className="flex-center h-full w-full rounded-full" style={{ backgroundColor: COLORS[pos.id] }}>
+                <LazyComponent parentRef={containerRef}>
+                  <Dynamic index={index} />
+                </LazyComponent>
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
     </div>
   );
