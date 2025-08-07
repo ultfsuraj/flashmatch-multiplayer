@@ -1,23 +1,18 @@
 'use client';
 
-import { motion, useAnimation } from 'motion/react';
-import { lazy, useEffect, useRef, useState } from 'react';
+import { motion, MotionNodeAnimationOptions, scale, useAnimation } from 'motion/react';
+import { ComponentType, lazy, ReactNode, useEffect, useRef, useState } from 'react';
+import type { ChessContainerProps } from ' @/containers/ChessContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
 
-// const Dynamic = lazy(
-//   () =>
-//     new Promise<typeof import(' @/components/Lazy1')>((resolve) =>
-//       setTimeout(() => resolve(import(' @/components/Lazy1')), 3000)
-//     )
-// );
-
 const DYNAMIC_COMPONENTS = new Array(8);
+
 for (let i = 0; i < 8; i++) {
   DYNAMIC_COMPONENTS[i] = lazy(
     () =>
-      new Promise<typeof import(' @/components/Lazy1')>((resolve) =>
-        setTimeout(() => resolve(import(' @/components/Lazy1')), 3000)
+      new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
+        setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
       )
   );
 }
@@ -43,6 +38,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const div1Ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [gameOpen, setGameOpen] = useState<boolean>(false);
+  const [gameId, setGameId] = useState<number>(-1);
 
   const controlsARR = useRef([
     useAnimation(),
@@ -95,7 +91,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       controlsARR.current.map((control, index) =>
         control.start({
           ...POSITIONS[(index + (down ? 1 : -1) + len) % len],
-          transition: { type: 'spring', duration: 0.4, bounce: 0.3 },
+          transition: { type: 'spring', duration: 0.3, bounce: 0.2 },
         })
       )
     );
@@ -128,10 +124,11 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       scale: !open ? 1 : POSITIONS[id].scale,
       zIndex: !open ? POSITIONS.length + 50 : id + 2,
       borderRadius: !open ? '0%' : '50%',
-      transition: { type: 'spring', duration: 0.4, bounce: 0.3 },
+      transition: { type: 'spring', duration: 0.3, bounce: 0.2 },
     });
     if (!open) setGameOpen(true);
     setOpen((prev) => !prev);
+    setGameId(id);
   };
 
   return (
@@ -160,7 +157,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         {/* items */}
 
         {POSITIONS.map((pos, index) => {
-          const Dynamic = DYNAMIC_COMPONENTS[index];
+          const Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
 
           return (
             <motion.div
@@ -186,12 +183,19 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
             >
               <LazyComponent parentRef={containerRef}>
                 <Dynamic
+                  initial={{ width: 1, height: 1 }}
+                  animate={{
+                    width: gameOpen && pos.id == gameId ? '100vw' : 1,
+                    height: gameOpen && pos.id == gameId ? '100vh' : 1,
+                  }}
+                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
                   index={index}
                   onClick={() => {
                     if (gameOpen) {
                       handleClick(pos.id);
                     }
                     setGameOpen(false);
+                    setGameId(-1);
                   }}
                 />
               </LazyComponent>
