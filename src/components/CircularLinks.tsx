@@ -41,7 +41,6 @@ const getRadius = (w: number, h: number) => {
 const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const div1Ref = useRef<HTMLDivElement>(null);
-  const activeIdRef = useRef<number>(-1);
   const [open, setOpen] = useState<boolean>(false);
   const [gameOpen, setGameOpen] = useState<boolean>(false);
 
@@ -86,13 +85,6 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
     ]);
   }, [chordAngle]);
 
-  // useEffect(() => {
-  //   if (!gameOpen && activeIdRef.current != -1) {
-  //     handleClick(activeIdRef.current);
-  //     activeIdRef.current = -1;
-  //   }
-  // }, [gameOpen]);
-
   const circX = (extra: number) => r * Math.cos((extra * Math.PI) / 180) + r - (div1Ref.current?.offsetWidth || 0) / 2;
   const circY = (extra: number) => r * Math.sin((extra * Math.PI) / 180) + r - (div1Ref.current?.offsetHeight || 0) / 2;
 
@@ -125,9 +117,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
     setPOSITIONS(newPositions);
   };
 
-  const handleClick = async (id: number) => {
-    if (!open) setGameOpen(true);
-    setOpen((prev) => !prev);
+  const handleClick = (id: number) => {
     console.log(open ? 'open' : 'closed');
     const control = controlsARR.current[id];
     control.start({
@@ -137,8 +127,11 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       y: !open ? 10 : POSITIONS[id].y,
       scale: !open ? 1 : POSITIONS[id].scale,
       zIndex: !open ? POSITIONS.length + 50 : id + 2,
+      borderRadius: !open ? '0%' : '50%',
       transition: { type: 'spring', duration: 0.4, bounce: 0.3 },
     });
+    if (!open) setGameOpen(true);
+    setOpen((prev) => !prev);
   };
 
   return (
@@ -172,11 +165,13 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           return (
             <motion.div
               key={pos.id}
-              className="flex-center absolute h-32 w-32 rounded-full bg-zinc-700"
+              className="flex-center absolute h-32 w-32"
               style={{
                 x: pos.x,
                 y: pos.y,
                 scale: pos.scale,
+                backgroundColor: COLORS[pos.id],
+                borderRadius: '50%',
               }}
               animate={controlsARR.current[pos.id]}
               drag={open ? false : 'y'}
@@ -186,29 +181,26 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 handleDragEnd(info.velocity.y > 0);
               }}
               onClick={() => {
-                activeIdRef.current = pos.id;
                 if (!gameOpen) handleClick(pos.id);
               }}
             >
-              <div className="flex-center h-full w-full rounded-full" style={{ backgroundColor: COLORS[pos.id] }}>
-                <LazyComponent parentRef={containerRef}>
-                  <Dynamic
-                    index={index}
-                    onClick={() => {
-                      if (gameOpen) {
-                        handleClick(pos.id);
-                      }
-                      setGameOpen(false);
-                    }}
-                  />
-                </LazyComponent>
-              </div>
+              <LazyComponent parentRef={containerRef}>
+                <Dynamic
+                  index={index}
+                  onClick={() => {
+                    if (gameOpen) {
+                      handleClick(pos.id);
+                    }
+                    setGameOpen(false);
+                  }}
+                />
+              </LazyComponent>
             </motion.div>
           );
         })}
 
         <div
-          className="absolute h-[100vh] w-[100vw] bg-amber-200"
+          className="absolute h-[100vh] w-[100vw]"
           style={{ display: open ? 'block' : 'none', zIndex: POSITIONS.length + 10, left: 2 * r - w, top: 10 }}
         ></div>
       </motion.div>
