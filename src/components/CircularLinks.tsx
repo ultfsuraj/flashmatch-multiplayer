@@ -41,6 +41,9 @@ const getRadius = (w: number, h: number) => {
 const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const div1Ref = useRef<HTMLDivElement>(null);
+  const activeIdRef = useRef<number>(-1);
+  const [open, setOpen] = useState<boolean>(false);
+  const [gameOpen, setGameOpen] = useState<boolean>(false);
 
   const controlsARR = useRef([
     useAnimation(),
@@ -53,10 +56,10 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
     useAnimation(),
   ]);
 
-  const [r, setR] = useState(0);
-  const [w, setW] = useState(0);
-  const [h, setH] = useState(0);
-  const [chordAngle, setChordAngle] = useState(0);
+  const [r, setR] = useState<number>(0);
+  const [w, setW] = useState<number>(0);
+  const [h, setH] = useState<number>(0);
+  const [chordAngle, setChordAngle] = useState<number>(0);
   const [POSITIONS, setPOSITIONS] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
 
   useEffect(() => {
@@ -82,6 +85,13 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       { id: 7, x: circX(-chordAngle), y: circY(-chordAngle), scale: 0.1 },
     ]);
   }, [chordAngle]);
+
+  // useEffect(() => {
+  //   if (!gameOpen && activeIdRef.current != -1) {
+  //     handleClick(activeIdRef.current);
+  //     activeIdRef.current = -1;
+  //   }
+  // }, [gameOpen]);
 
   const circX = (extra: number) => r * Math.cos((extra * Math.PI) / 180) + r - (div1Ref.current?.offsetWidth || 0) / 2;
   const circY = (extra: number) => r * Math.sin((extra * Math.PI) / 180) + r - (div1Ref.current?.offsetHeight || 0) / 2;
@@ -115,8 +125,24 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
     setPOSITIONS(newPositions);
   };
 
+  const handleClick = async (id: number) => {
+    if (!open) setGameOpen(true);
+    setOpen((prev) => !prev);
+    console.log(open ? 'open' : 'closed');
+    const control = controlsARR.current[id];
+    control.start({
+      height: !open ? '100vh' : div1Ref.current?.offsetHeight,
+      width: !open ? '100vw' : div1Ref.current?.offsetWidth,
+      x: !open ? 2 * r - w : POSITIONS[id].x,
+      y: !open ? 10 : POSITIONS[id].y,
+      scale: !open ? 1 : POSITIONS[id].scale,
+      zIndex: !open ? POSITIONS.length + 50 : id + 2,
+      transition: { type: 'spring', duration: 0.4, bounce: 0.3 },
+    });
+  };
+
   return (
-    <div ref={containerRef} className="mt-[7vh] h-[85vh] w-[65vw]">
+    <div ref={containerRef} className="h-[85vh] w-[65vw]">
       {/* circle */}
       <motion.div
         className="relative rounded-full bg-teal-300"
@@ -153,24 +179,38 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 scale: pos.scale,
               }}
               animate={controlsARR.current[pos.id]}
-              drag="y"
+              drag={open ? false : 'y'}
               dragConstraints={{ top: pos.y, bottom: pos.y }}
               dragElastic={0.03}
-              onDragEnd={(event, info) => {
+              onDragEnd={(e, info) => {
                 handleDragEnd(info.velocity.y > 0);
               }}
               onClick={() => {
-                console.log(pos.id);
+                activeIdRef.current = pos.id;
+                if (!gameOpen) handleClick(pos.id);
               }}
             >
               <div className="flex-center h-full w-full rounded-full" style={{ backgroundColor: COLORS[pos.id] }}>
                 <LazyComponent parentRef={containerRef}>
-                  <Dynamic index={index} />
+                  <Dynamic
+                    index={index}
+                    onClick={() => {
+                      if (gameOpen) {
+                        handleClick(pos.id);
+                      }
+                      setGameOpen(false);
+                    }}
+                  />
                 </LazyComponent>
               </div>
             </motion.div>
           );
         })}
+
+        <div
+          className="absolute h-[100vh] w-[100vw] bg-amber-200"
+          style={{ display: open ? 'block' : 'none', zIndex: POSITIONS.length + 10, left: 2 * r - w, top: 10 }}
+        ></div>
       </motion.div>
     </div>
   );
