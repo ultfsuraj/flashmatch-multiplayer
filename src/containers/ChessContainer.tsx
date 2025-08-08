@@ -17,7 +17,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
     >
       <div className="flex w-full items-center justify-between p-2">
         <motion.div
-          className="flex-center top-0 left-0 rounded-full bg-neutral-800"
+          className="flex-center top-0 left-0 rounded-full"
           initial={false}
           animate={{
             height: gameOpen ? 'auto' : iconHeight,
@@ -26,9 +26,13 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
             position: gameOpen ? 'relative' : 'absolute',
           }}
           transition={{ type: 'spring', duration: 0.25, bounce: 0 }}
-        >
-          Icon{index}
-        </motion.div>
+          style={{
+            backgroundImage: "url('https://www.flaticon.com/free-icon/hiring_10722382')",
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+          }}
+        />
         <h3 className="font-bangers font-semibold text-white">Chess</h3>
         <motion.button className="bg-black px-2 py-1 font-semibold text-white" onClick={() => onClick()}>
           close

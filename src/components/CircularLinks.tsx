@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, MotionNodeAnimationOptions, scale, useAnimation } from 'motion/react';
-import { ComponentType, lazy, ReactNode, useEffect, useRef, useState } from 'react';
-import type { ChessContainerProps } from ' @/containers/ChessContainer';
+import { motion, useAnimation } from 'motion/react';
+import { ComponentType, lazy, useEffect, useRef, useState } from 'react';
+import type { ColorWarsContainerProps } from ' @/containers/ColorWarsContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
 
@@ -11,8 +11,8 @@ const DYNAMIC_COMPONENTS = new Array(8);
 for (let i = 0; i < 8; i++) {
   DYNAMIC_COMPONENTS[i] = lazy(
     () =>
-      new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
-        setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
+      new Promise<typeof import(' @/containers/ColorWarsContainer')>((resolve) =>
+        setTimeout(() => resolve(import(' @/containers/ColorWarsContainer')), 1000)
       )
   );
 }
@@ -157,7 +157,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         {/* items */}
 
         {POSITIONS.map((pos, index) => {
-          const Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
+          const Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ColorWarsContainerProps>;
 
           return (
             <motion.div
