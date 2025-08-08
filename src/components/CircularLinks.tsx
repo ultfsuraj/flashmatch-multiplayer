@@ -1,7 +1,21 @@
 'use client';
 
-import { motion, useAnimation } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { motion, MotionNodeAnimationOptions, scale, useAnimation } from 'motion/react';
+import { ComponentType, lazy, ReactNode, useEffect, useRef, useState } from 'react';
+import type { ChessContainerProps } from ' @/containers/ChessContainer';
+
+import LazyComponent from ' @/components/LazyComponent';
+
+const DYNAMIC_COMPONENTS = new Array(8);
+
+for (let i = 0; i < 8; i++) {
+  DYNAMIC_COMPONENTS[i] = lazy(
+    () =>
+      new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
+        setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
+      )
+  );
+}
 
 const COLORS: Record<number, string> = {
   0: '#ffe6d2',
@@ -22,6 +36,9 @@ const getRadius = (w: number, h: number) => {
 const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const div1Ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const [gameOpen, setGameOpen] = useState<boolean>(false);
+  const [gameId, setGameId] = useState<number>(-1);
 
   const controlsARR = useRef([
     useAnimation(),
@@ -34,10 +51,10 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
     useAnimation(),
   ]);
 
-  const [r, setR] = useState(0);
-  const [w, setW] = useState(0);
-  const [h, setH] = useState(0);
-  const [chordAngle, setChordAngle] = useState(0);
+  const [r, setR] = useState<number>(0);
+  const [w, setW] = useState<number>(0);
+  const [h, setH] = useState<number>(0);
+  const [chordAngle, setChordAngle] = useState<number>(0);
   const [POSITIONS, setPOSITIONS] = useState<{ id: number; x: number; y: number; scale: number }[]>([]);
 
   useEffect(() => {
@@ -74,7 +91,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       controlsARR.current.map((control, index) =>
         control.start({
           ...POSITIONS[(index + (down ? 1 : -1) + len) % len],
-          transition: { type: 'spring', duration: 0.4, bounce: 0.3 },
+          transition: { type: 'spring', duration: 0.3, bounce: 0.2 },
         })
       )
     );
@@ -96,8 +113,27 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
     setPOSITIONS(newPositions);
   };
 
+  const handleClick = (id: number) => {
+    console.log(open ? 'open' : 'closed');
+    const control = controlsARR.current[id];
+    control.start({
+      height: !open ? '100vh' : div1Ref.current?.offsetHeight,
+      width: !open ? '100vw' : div1Ref.current?.offsetWidth,
+      x: !open ? 2 * r - w : POSITIONS[id].x,
+      y: !open ? 10 : POSITIONS[id].y,
+      scale: !open ? 1 : POSITIONS[id].scale,
+      zIndex: !open ? POSITIONS.length + 50 : id + 2,
+      borderRadius: !open ? '0%' : '50%',
+      transition: { type: 'spring', duration: 0.3, bounce: 0.2 },
+    });
+    if (!open) setGameOpen(true);
+    setOpen((prev) => !prev);
+    setGameId(id);
+  };
+
   return (
-    <div ref={containerRef} className="mt-[7vh] h-[85vh] w-[65vw]">
+    <div ref={containerRef} className="h-[85vh] w-[65vw]">
+      {/* circle */}
       <motion.div
         className="relative rounded-full bg-teal-300"
         style={{
@@ -120,29 +156,57 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
 
         {/* items */}
 
-        {POSITIONS.map((pos, index) => (
-          <motion.div
-            key={pos.id}
-            className="flex-center absolute h-32 w-32 rounded-full bg-zinc-700"
-            style={{
-              x: pos.x,
-              y: pos.y,
-              scale: pos.scale,
-            }}
-            animate={controlsARR.current[pos.id]}
-            drag="y"
-            dragConstraints={{ top: pos.y, bottom: pos.y }}
-            dragElastic={0.03}
-            onDragEnd={(event, info) => {
-              handleDragEnd(info.velocity.y > 0);
-            }}
-            onClick={() => {
-              console.log(pos.id);
-            }}
-          >
-            <div className="h-full w-full rounded-full" style={{ backgroundColor: COLORS[pos.id] }}></div>
-          </motion.div>
-        ))}
+        {POSITIONS.map((pos, index) => {
+          const Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
+
+          return (
+            <motion.div
+              key={pos.id}
+              className="flex-center absolute h-32 w-32"
+              style={{
+                x: pos.x,
+                y: pos.y,
+                scale: pos.scale,
+                backgroundColor: COLORS[pos.id],
+                borderRadius: '50%',
+              }}
+              animate={controlsARR.current[pos.id]}
+              drag={open ? false : 'y'}
+              dragConstraints={{ top: pos.y, bottom: pos.y }}
+              dragElastic={0.03}
+              onDragEnd={(e, info) => {
+                handleDragEnd(info.velocity.y > 0);
+              }}
+              onClick={() => {
+                if (!gameOpen) handleClick(pos.id);
+              }}
+            >
+              <LazyComponent parentRef={containerRef}>
+                <Dynamic
+                  initial={{ width: 1, height: 1 }}
+                  animate={{
+                    width: gameOpen && pos.id == gameId ? '100vw' : 1,
+                    height: gameOpen && pos.id == gameId ? '100vh' : 1,
+                  }}
+                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
+                  index={index}
+                  onClick={() => {
+                    if (gameOpen) {
+                      handleClick(pos.id);
+                    }
+                    setGameOpen(false);
+                    setGameId(-1);
+                  }}
+                />
+              </LazyComponent>
+            </motion.div>
+          );
+        })}
+
+        <div
+          className="absolute h-[100vh] w-[100vw]"
+          style={{ display: open ? 'block' : 'none', zIndex: POSITIONS.length + 10, left: 2 * r - w, top: 10 }}
+        ></div>
       </motion.div>
     </div>
   );

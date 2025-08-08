@@ -24,7 +24,7 @@ const HomeContainer = () => {
           key="TextReveal"
           className="absolute z-[1] h-full w-full bg-transparent"
           layout
-          exit={{ x: '-100%', transition: { type: 'tween', delay: 2.2 } }}
+          exit={{ x: '-101%', transition: { type: 'tween', delay: 2.2 } }}
         >
           <TextReveal key="homeText" text="Flash Match" />
         </motion.div>

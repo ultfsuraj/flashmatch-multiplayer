@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} ${bangers.variable} antialiased`}>{children}</body>
+      <body className={`${montserrat.variable} ${bangers.variable} overflow-hidden antialiased`}>{children}</body>
     </html>
   );
 }
