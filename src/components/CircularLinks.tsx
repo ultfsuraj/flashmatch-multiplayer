@@ -183,12 +183,15 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
             >
               <LazyComponent parentRef={containerRef}>
                 <Dynamic
-                  initial={{ width: 1, height: 1 }}
+                  initial={false}
                   animate={{
-                    width: gameOpen && pos.id == gameId ? '100vw' : 1,
-                    height: gameOpen && pos.id == gameId ? '100vh' : 1,
+                    width: gameOpen && pos.id == gameId ? '100vw' : div1Ref.current?.offsetWidth || 50,
+                    height: gameOpen && pos.id == gameId ? '100vh' : div1Ref.current?.offsetWidth || 50,
+                    borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
+                    userSelect: gameOpen && pos.id == gameId ? 'none' : 'all',
+                    touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
                   }}
-                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
+                  transition={{ type: 'spring', duration: 0.2, bounce: 0.15 }}
                   index={index}
                   onClick={() => {
                     if (gameOpen) {
@@ -197,6 +200,8 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     setGameOpen(false);
                     setGameId(-1);
                   }}
+                  iconHeight={div1Ref.current?.offsetHeight || 50}
+                  gameOpen={gameOpen && pos.id == gameId}
                 />
               </LazyComponent>
             </motion.div>
