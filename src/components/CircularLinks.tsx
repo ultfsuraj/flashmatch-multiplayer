@@ -188,7 +188,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     width: gameOpen && pos.id == gameId ? '100vw' : div1Ref.current?.offsetWidth || 50,
                     height: gameOpen && pos.id == gameId ? '100vh' : div1Ref.current?.offsetWidth || 50,
                     borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
-                    userSelect: gameOpen && pos.id == gameId ? 'none' : 'all',
+                    userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
                     touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
                   }}
                   transition={{ type: 'spring', duration: 0.2, bounce: 0.15 }}
