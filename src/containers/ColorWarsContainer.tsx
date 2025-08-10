@@ -46,12 +46,15 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           close
         </motion.button>
       </div>
-      <section>
-        {/* grid */}
-        <div className="flex-center h-32 w-32 rounded-xl bg-amber-300 p-3">
-          <DotSquare />
-        </div>
-      </section>
+
+      {/* grid */}
+
+      <div className="grid w-[90%] grid-cols-6 grid-rows-6 gap-2 rounded-md bg-neutral-700 p-1 *:aspect-square">
+        {new Array(36).fill(null).map((_, index) => (
+          <DotSquare key={index} id={index} />
+        ))}
+      </div>
+
       <div></div>
     </motion.div>
   );

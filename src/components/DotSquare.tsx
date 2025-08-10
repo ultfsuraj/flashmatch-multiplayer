@@ -3,7 +3,7 @@
 import { LayoutGroup, motion } from 'motion/react';
 import { useDeferredValue, useRef, useState } from 'react';
 
-const DotSquare = () => {
+const DotSquare = ({ id }: { id: number }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [count, setCount] = useState<number>(0);
   const deferCount = useDeferredValue(count);
@@ -32,48 +32,47 @@ const DotSquare = () => {
         onAnimationComplete={() => setIsAnimating(false)}
       >
         {/* front side */}
-        <motion.div
-          ref={ref}
-          layout
-          className="flex-center absolute h-full w-full flex-wrap justify-around rounded-2xl bg-blue-300 p-2 backface-hidden"
-        >
-          <LayoutGroup id="groupRowPlusColFront">
-            {new Array(deferCount).fill(null).map((_, index) => (
-              <motion.div
-                layout
-                layoutId={index + ''}
-                key={index}
-                className="rounded-[50%] bg-neutral-800"
-                style={{
-                  height: (ref.current?.clientHeight || 10) / 3,
-                  width: (ref.current?.clientWidth || 10) / 3,
-                }}
-                transition={{ type: 'spring', duration: 0.2 }}
-              />
-            ))}
-          </LayoutGroup>
+        <motion.div layout className="absolute h-full w-full rounded-md bg-blue-300 p-2 backface-hidden">
+          <div ref={ref} className="flex-center h-full w-full flex-wrap justify-around">
+            <LayoutGroup id="groupRowPlusColFront">
+              {new Array(deferCount).fill(null).map((_, index) => (
+                <motion.div
+                  layout
+                  layoutId={id + 'front' + index}
+                  key={id + 'front' + index}
+                  className="rounded-[50%] bg-neutral-800"
+                  style={{
+                    height: (ref.current?.clientHeight || 10) / 3 + 1,
+                    width: (ref.current?.clientWidth || 10) / 3 + 1,
+                  }}
+                  transition={{ type: 'spring', duration: 0.2 }}
+                />
+              ))}
+            </LayoutGroup>
+          </div>
         </motion.div>
         {/* back side */}
         <motion.div
-          ref={ref}
           layout
-          className="flex-center absolute h-full w-full -scale-x-100 rotate-y-180 flex-wrap justify-around rounded-2xl bg-red-300 p-2 backface-hidden"
+          className="absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md bg-red-300 p-2 backface-hidden"
         >
-          <LayoutGroup id="groupRowPlusColBack">
-            {new Array(deferCount).fill(null).map((_, index) => (
-              <motion.div
-                layout
-                layoutId={index + ''}
-                key={index}
-                className="rounded-[50%] bg-neutral-800"
-                style={{
-                  height: (ref.current?.clientHeight || 10) / 3,
-                  width: (ref.current?.clientWidth || 10) / 3,
-                }}
-                transition={{ type: 'spring', duration: 0.2 }}
-              />
-            ))}
-          </LayoutGroup>
+          <div className="flex-center h-full w-full flex-wrap justify-around">
+            <LayoutGroup id="groupRowPlusColBack">
+              {new Array(deferCount).fill(null).map((_, index) => (
+                <motion.div
+                  layout
+                  layoutId={id + 'back' + index}
+                  key={id + 'back' + index}
+                  className="rounded-[50%] bg-neutral-800"
+                  style={{
+                    height: (ref.current?.clientHeight || 10) / 3 + 1,
+                    width: (ref.current?.clientWidth || 10) / 3 + 1,
+                  }}
+                  transition={{ type: 'spring', duration: 0.2 }}
+                />
+              ))}
+            </LayoutGroup>
+          </div>
         </motion.div>
       </motion.div>
     </div>
