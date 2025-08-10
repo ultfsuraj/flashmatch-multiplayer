@@ -47,6 +47,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
         </motion.button>
       </div>
       <section>
+        {/* grid */}
         <div className="flex-center h-32 w-32 rounded-xl bg-amber-300 p-3">
           <DotSquare />
         </div>
