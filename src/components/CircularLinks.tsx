@@ -124,7 +124,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       scale: !open ? 1 : POSITIONS[id].scale,
       zIndex: !open ? POSITIONS.length + 50 : id + 2,
       borderRadius: !open ? '0%' : '50%',
-      transition: { type: 'spring', duration: 0.3, bounce: 0.2 },
+      transition: { type: 'spring', duration: 0.3, bounce: 0 },
     });
     if (!open) setGameOpen(true);
     setOpen((prev) => !prev);
