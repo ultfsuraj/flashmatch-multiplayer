@@ -29,6 +29,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
           className="flex-center top-0 left-0 rounded-full bg-contain bg-no-repeat"
+          layout
           initial={false}
           animate={{
             width: gameOpen ? '6vh' : iconHeight,
@@ -36,7 +37,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
             borderRadius: gameOpen ? '0%' : '50%',
             position: gameOpen ? 'relative' : 'absolute',
           }}
-          transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
+          transition={MotionDivProps.transition}
           src={ICONS[index]}
         />
         <h3 className="font-bangers font-semibold text-white">Color Wars</h3>

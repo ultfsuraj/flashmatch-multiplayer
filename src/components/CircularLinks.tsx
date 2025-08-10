@@ -191,7 +191,8 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
                     touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
                   }}
-                  transition={{ type: 'spring', duration: 0.2, bounce: 0.15 }}
+                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
+                  layout
                   index={index}
                   onClick={() => {
                     if (gameOpen) {
