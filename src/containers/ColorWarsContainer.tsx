@@ -1,5 +1,6 @@
 'use client';
 
+import DotSquare from ' @/components/DotSquare';
 import { HTMLMotionProps, motion } from 'motion/react';
 
 const ICONS: string[] = [
@@ -28,7 +29,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
     >
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
-          className="flex-center top-0 left-0 rounded-full bg-contain bg-no-repeat"
+          className="flex-center top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
           layout
           initial={false}
           animate={{
@@ -45,7 +46,11 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           close
         </motion.button>
       </div>
-      <section>Color Wars Container {index}</section>
+      <section>
+        <div className="flex-center h-32 w-32 rounded-xl bg-amber-300 p-3">
+          <DotSquare />
+        </div>
+      </section>
       <div></div>
     </motion.div>
   );
