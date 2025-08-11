@@ -1,33 +1,25 @@
 'use client';
 
 import { LayoutGroup, motion } from 'motion/react';
-import { memo, useDeferredValue, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, useTransition } from 'react';
 import { cn } from ' @/utils/cn';
-import { increaseTurn, type cellType } from ' @/redux/features/colorWarsSlice';
+import { increaseTurn, spread, type cellType } from ' @/redux/features/colorWarsSlice';
 import { useAppDispatch } from ' @/redux/hooks';
 
 const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cellType) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [count, setCount] = useState<number>(initialCount);
-  const deferCount = useDeferredValue(count);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState<boolean>(flip);
+  const [pending, startTransition] = useTransition();
   const dispatch = useAppDispatch();
 
   const handleClick = () => {
     if (!isAnimating) {
-      dispatch(increaseTurn(id));
-      if (count < 4) setCount((prev) => prev + 1);
+      if (count < 4) {
+        setCount((prev) => prev + 1);
+      }
     }
   };
-
-  useEffect(() => {
-    if (deferCount == 4) {
-      setTimeout(() => {
-        console.log('spread');
-        // dispatch(spread(id))
-      }, 200);
-    }
-  }, [deferCount]);
 
   return (
     <div className="h-full w-full perspective-midrange" onClick={handleClick}>
@@ -44,7 +36,7 @@ const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cel
         <motion.div layout className={cn('absolute h-full w-full rounded-md p-1 backface-hidden', frontColor)}>
           <div ref={ref} className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id="groupRowPlusColFront">
-              {new Array(deferCount).fill(null).map((_, index) => (
+              {new Array(count).fill(null).map((_, index) => (
                 <motion.div
                   layout
                   layoutId={id + 'f' + index}
@@ -67,7 +59,7 @@ const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cel
         >
           <div className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id="groupRowPlusColBack">
-              {new Array(deferCount).fill(null).map((_, index) => (
+              {new Array(count).fill(null).map((_, index) => (
                 <motion.div
                   layout
                   layoutId={id + 'b' + index}

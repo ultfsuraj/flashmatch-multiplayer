@@ -60,8 +60,15 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
         }}
       >
-        {cells.map((props) => (
-          <DotSquare key={props.id} {...props} />
+        {Object.values(cells).map((props) => (
+          <DotSquare
+            key={props.id}
+            id={props.id}
+            count={props.count}
+            flip={props.flip}
+            backColor={props.backColor}
+            frontColor={props.backColor}
+          />
         ))}
       </div>
 

@@ -33,13 +33,28 @@ export const gameSlice = createSlice({
   initialState,
   reducers: {
     increaseTurn: (state, action: PayloadAction<number>) => {
+      console.log('turn ' + state.turn);
       state.turn += 1;
       state.cells[action.payload].count += 1;
-      console.log('turn ' + state.turn);
     },
-    spread: (state, action: PayloadAction<number>) => {},
+    spread: (state, action: PayloadAction<number>) => {
+      const [n, id] = [state.rows, action.payload];
+      const [r, c] = [Math.floor(id / n), id % n];
+      const nextCells: number[] = [];
+      if (c != 0) nextCells.push(id - 1);
+      if (c != n - 1) nextCells.push(id + 1);
+      if (r != 0) nextCells.push(n * (r - 1) + c);
+      if (r != n - 1) nextCells.push(n * (r + 1) + c);
+
+      nextCells.forEach((adjId) => {
+        const prev = state.cells[adjId];
+        state.cells[adjId] = { ...prev, count: prev.count + 1, flip: true };
+      });
+
+      state.cells[id] = { id, count: 0, flip: true, backColor: state.neutralColor, frontColor: state.neutralColor };
+    },
   },
 });
 
-export const { increaseTurn } = gameSlice.actions;
+export const { increaseTurn, spread } = gameSlice.actions;
 export default gameSlice.reducer;
