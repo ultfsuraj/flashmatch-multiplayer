@@ -114,7 +114,6 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   };
 
   const handleClick = (id: number) => {
-    console.log(open ? 'open' : 'closed');
     const control = controlsARR.current[id];
     control.start({
       height: !open ? '100vh' : div1Ref.current?.offsetHeight,

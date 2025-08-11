@@ -1,6 +1,7 @@
 'use client';
 
 import DotSquare from ' @/components/DotSquare';
+import { useAppSelector } from ' @/redux/hooks';
 import { HTMLMotionProps, motion } from 'motion/react';
 
 const ICONS: string[] = [
@@ -22,6 +23,9 @@ export type ColorWarsContainerProps = {
 } & HTMLMotionProps<'div'>;
 
 const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ColorWarsContainerProps) => {
+  const rows = useAppSelector((state) => state.colorWarsState.rows);
+  const cells = useAppSelector((state) => state.colorWarsState.cells);
+
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
@@ -49,9 +53,15 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
 
       {/* grid */}
 
-      <div className="grid w-[90%] grid-cols-6 grid-rows-6 gap-2 rounded-md bg-neutral-700 p-1 *:aspect-square">
-        {new Array(36).fill(null).map((_, index) => (
-          <DotSquare key={index} id={index} />
+      <div
+        className="grid w-[90%] gap-1 rounded-md bg-neutral-700 p-1 *:aspect-square"
+        style={{
+          gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
+        }}
+      >
+        {cells.map((props) => (
+          <DotSquare key={props.id} {...props} />
         ))}
       </div>
 
