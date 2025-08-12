@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type cellType = { id: number; flip: boolean; count: number; frontColor: string; backColor: string };
+export type cellType = { id: number; flip: number; count: number; frontColor: string; backColor: string };
 
 type gameState = {
   gameInfo: {
@@ -16,7 +16,7 @@ type gameState = {
 const initializeCells = (n: number, neutral: string) => {
   const arr: Record<number, cellType> = {};
   for (let i = 0; i < n * n; i++) {
-    arr[i] = { id: i, flip: false, count: 0, frontColor: neutral, backColor: neutral };
+    arr[i] = { id: i, flip: 0, count: 0, frontColor: neutral, backColor: neutral };
   }
   return arr;
 };
@@ -38,10 +38,25 @@ export const gameSlice = createSlice({
   reducers: {
     increaseTurn: (state, action: PayloadAction<number>) => {
       console.log('turn ' + state.gameInfo.turn);
+      const prev = state.cells[action.payload];
+      const turn = state.gameInfo.turn;
+      switch (turn) {
+        case 1:
+          prev.frontColor = state.gameInfo.color1;
+          break;
+        case 2:
+          if (prev.frontColor == state.gameInfo.color1) return;
+          prev.frontColor = state.gameInfo.color2;
+          break;
+        default:
+          if (prev.frontColor == state.gameInfo.neutralColor) return;
+      }
+      prev.count += 1;
+      state.cells[prev.id] = prev;
       state.gameInfo.turn += 1;
-      state.cells[action.payload].count += 1;
     },
     spread: (state, action: PayloadAction<number>) => {
+      // check if all coloured cells are same color... return
       const [n, id] = [state.gameInfo.rows, action.payload];
       const [r, c] = [Math.floor(id / n), id % n];
       const nextCells: number[] = [];
@@ -52,25 +67,33 @@ export const gameSlice = createSlice({
 
       nextCells.forEach((adjId) => {
         const prev = state.cells[adjId];
-        state.cells[adjId] = { ...prev, count: prev.count + 1, flip: true };
+        const srcColor = state.cells[id].frontColor;
+        prev.count += 1;
+        if (prev.frontColor != srcColor) {
+          prev.flip += 180;
+          prev.frontColor = srcColor;
+        }
+
+        state.cells[adjId] = prev;
       });
 
       state.cells[id] = {
         id,
         count: 0,
-        flip: true,
-        backColor: state.gameInfo.neutralColor,
+        flip: state.cells[id].flip + 180,
         frontColor: state.gameInfo.neutralColor,
+        backColor: state.gameInfo.neutralColor,
       };
     },
     updateOne: (state, action: PayloadAction<Pick<cellType, 'id'> & Partial<Omit<cellType, 'id'>>>) => {
       state.cells[action.payload.id] = { ...state.cells[action.payload.id], ...action.payload };
     },
-    resetCells: (state) => {
+    resetGame: (state) => {
       state.cells = initialState.cells;
+      state.gameInfo = initialState.gameInfo;
     },
   },
 });
 
-export const { increaseTurn, spread, updateOne, resetCells } = gameSlice.actions;
+export const { increaseTurn, spread, updateOne, resetGame } = gameSlice.actions;
 export default gameSlice.reducer;

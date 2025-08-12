@@ -1,7 +1,7 @@
 'use client';
 
 import DotSquare from ' @/components/DotSquare';
-import { resetCells } from ' @/redux/features/colorWarsSlice';
+import { resetGame } from ' @/redux/features/colorWarsSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { HTMLMotionProps, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -58,7 +58,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
         <motion.button
           className="bg-black px-2 py-1 font-semibold text-white"
           onClick={() => {
-            dispatch(resetCells());
+            dispatch(resetGame());
             onClick();
           }}
         >

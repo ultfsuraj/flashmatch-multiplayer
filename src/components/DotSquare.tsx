@@ -1,16 +1,16 @@
 'use client';
 
-import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { AnimatePresence, LayoutGroup, motion, useAnimation } from 'motion/react';
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { cn } from ' @/utils/cn';
 import { increaseTurn, spread } from ' @/redux/features/colorWarsSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
-import delayRun from ' @/utils/delayRun';
 
 const DotSquare = ({ id }: { id: number }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const cell = useAppSelector((state) => state.colorWarsState.cells[id]);
   const { count, flip, backColor, frontColor } = cell;
+  const flipControls = useAnimation();
 
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -24,23 +24,22 @@ const DotSquare = ({ id }: { id: number }) => {
   };
 
   useEffect(() => {
-    if (count > 3) {
-      delayRun(() => {
+    const { count, id, flip } = cell;
+    async function animateSpread() {
+      await flipControls.start({ rotateY: flip, transition: { duration: 0.3 } });
+      if (count > 3) {
         dispatch(spread(id));
-      }, 700);
+      }
     }
-    setIsAnimating(cell.flip);
-  }, [count, id, dispatch]);
+    animateSpread();
+  }, [cell, dispatch]);
 
   return (
     <div className="h-full w-full perspective-midrange" onClick={handleClick}>
       <motion.div
         layout
         className="relative h-full w-full transform-3d"
-        animate={{ rotateY: isAnimating ? 180 : 0 }}
-        transition={{
-          duration: 0.3,
-        }}
+        animate={flipControls}
         onAnimationComplete={() => setIsAnimating(false)}
       >
         {/* front side */}
@@ -66,7 +65,7 @@ const DotSquare = ({ id }: { id: number }) => {
         {/* back side */}
         <motion.div
           layout
-          className={cn('absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md p-1 backface-hidden', backColor)}
+          className={cn('absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md p-1 backface-hidden', frontColor)}
         >
           <div className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id={`back-${id}`}>
