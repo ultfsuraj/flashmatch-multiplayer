@@ -33,8 +33,6 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
     setCellItems(new Array(rows * rows).fill(null));
   }, [rows]);
 
-  console.log('container rerender');
-
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"

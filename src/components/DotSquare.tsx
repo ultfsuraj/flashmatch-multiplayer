@@ -15,8 +15,6 @@ const DotSquare = ({ id }: { id: number }) => {
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
-  console.log('rerender');
-  console.log(flip + '  ' + isAnimating);
   const handleClick = () => {
     if (!isAnimating && count < 4) {
       dispatch(increaseTurn(id));
@@ -26,7 +24,7 @@ const DotSquare = ({ id }: { id: number }) => {
   useEffect(() => {
     const { count, id, flip } = cell;
     async function animateSpread() {
-      await flipControls.start({ rotateY: flip, transition: { duration: 0.3 } });
+      await flipControls.start({ rotateY: flip, transition: { duration: 0.4 } });
       if (count > 3) {
         dispatch(spread(id));
       }

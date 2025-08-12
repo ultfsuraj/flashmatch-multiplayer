@@ -10,6 +10,10 @@ type gameState = {
     color1: string;
     color2: string;
   };
+  regions: {
+    one: number;
+    two: number;
+  };
   cells: Record<number, cellType>;
 };
 
@@ -29,6 +33,10 @@ const initialState: gameState = {
     color1: 'bg-cyan-300',
     color2: 'bg-red-400',
   },
+  regions: {
+    one: 0,
+    two: 0,
+  },
   cells: initializeCells(7, 'bg-neutral-200'),
 };
 
@@ -37,16 +45,17 @@ export const gameSlice = createSlice({
   initialState,
   reducers: {
     increaseTurn: (state, action: PayloadAction<number>) => {
-      console.log('turn ' + state.gameInfo.turn);
-      const prev = state.cells[action.payload];
+      const prev = { ...state.cells[action.payload] };
       const { turn, color1, color2, neutralColor } = state.gameInfo;
       switch (turn) {
         case 1:
           prev.frontColor = color1;
+          state.regions.one += 1;
           break;
         case 2:
           if (prev.frontColor == color1) return;
           prev.frontColor = color2;
+          state.regions.two += 1;
           break;
         default:
           if (prev.frontColor == neutralColor) return;
@@ -59,8 +68,12 @@ export const gameSlice = createSlice({
     },
     spread: (state, action: PayloadAction<number>) => {
       // check if all coloured cells are same color... return
+      if (state.regions.one <= 0 || state.regions.two <= 0) return;
+
       const [n, id] = [state.gameInfo.rows, action.payload];
       const [r, c] = [Math.floor(id / n), id % n];
+      const srcColor = state.cells[id].frontColor;
+      const { color1, color2, neutralColor } = state.gameInfo;
       const nextCells: number[] = [];
       if (c != 0) nextCells.push(id - 1);
       if (c != n - 1) nextCells.push(id + 1);
@@ -68,24 +81,50 @@ export const gameSlice = createSlice({
       if (r != n - 1) nextCells.push(n * (r + 1) + c);
 
       nextCells.forEach((adjId) => {
-        const prev = state.cells[adjId];
-        const srcColor = state.cells[id].frontColor;
-        prev.count += 1;
-        if (prev.frontColor != srcColor) {
-          prev.flip += 180;
-          prev.frontColor = srcColor;
+        const next = { ...state.cells[adjId] };
+        next.count += 1;
+        if (next.frontColor != srcColor) {
+          next.flip += 180;
+          switch (next.frontColor) {
+            case color1:
+              state.regions.one -= 1;
+              state.regions.two += 1;
+              break;
+            case color2:
+              state.regions.two -= 1;
+              state.regions.one += 1;
+              break;
+            case neutralColor:
+              if (srcColor == color1) state.regions.one += 1;
+              else state.regions.two += 1;
+          }
         }
-
-        state.cells[adjId] = prev;
+        next.frontColor = srcColor;
+        state.cells[adjId] = next;
       });
+
+      if (srcColor == color1) {
+        state.regions.one -= 1;
+      } else {
+        state.regions.two -= 1;
+      }
 
       state.cells[id] = {
         id,
         count: 0,
         flip: state.cells[id].flip + 180,
-        frontColor: state.gameInfo.neutralColor,
-        backColor: state.gameInfo.neutralColor,
+        frontColor: neutralColor,
+        backColor: neutralColor,
       };
+
+      console.log(state.regions.one, state.regions.two);
+
+      if (state.regions.one <= 0) {
+        console.log('red won');
+      }
+      if (state.regions.two <= 0) {
+        console.log('blue won');
+      }
     },
     updateOne: (state, action: PayloadAction<Pick<cellType, 'id'> & Partial<Omit<cellType, 'id'>>>) => {
       state.cells[action.payload.id] = { ...state.cells[action.payload.id], ...action.payload };
