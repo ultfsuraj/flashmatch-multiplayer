@@ -67,7 +67,7 @@ export const gameSlice = createSlice({
       state.gameInfo.turn += 1;
     },
     spread: (state, action: PayloadAction<number>) => {
-      // check if all coloured cells are same color... return
+      // logic to be updated, if count becomes more than 4 ?
       if (state.regions.one <= 0 || state.regions.two <= 0) return;
 
       const [n, id] = [state.gameInfo.rows, action.payload];
