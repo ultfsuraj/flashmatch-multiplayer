@@ -1,25 +1,32 @@
 'use client';
 
-import { LayoutGroup, motion } from 'motion/react';
-import { memo, useEffect, useRef, useState, useTransition } from 'react';
+import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { cn } from ' @/utils/cn';
-import { increaseTurn, spread, type cellType } from ' @/redux/features/colorWarsSlice';
-import { useAppDispatch } from ' @/redux/hooks';
+import { increaseTurn, spread } from ' @/redux/features/colorWarsSlice';
+import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
+import delayRun from ' @/utils/delayRun';
 
-const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cellType) => {
+const DotSquare = ({ id }: { id: number }) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [count, setCount] = useState<number>(initialCount);
+  const cell = useAppSelector((state) => state.colorWarsState.cells[id]);
+  const { count, flip, backColor, frontColor } = cell;
+
   const [isAnimating, setIsAnimating] = useState<boolean>(flip);
-  const [pending, startTransition] = useTransition();
   const dispatch = useAppDispatch();
 
+  console.log('rerender');
   const handleClick = () => {
-    if (!isAnimating) {
-      if (count < 4) {
-        setCount((prev) => prev + 1);
-      }
+    if (!isAnimating && count < 4) {
+      dispatch(increaseTurn(id));
     }
   };
+
+  useEffect(() => {
+    if (count > 3) {
+      dispatch(spread(id));
+    }
+  }, [count, id, dispatch]);
 
   return (
     <div className="h-full w-full perspective-midrange" onClick={handleClick}>
@@ -35,12 +42,12 @@ const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cel
         {/* front side */}
         <motion.div layout className={cn('absolute h-full w-full rounded-md p-1 backface-hidden', frontColor)}>
           <div ref={ref} className="flex-center h-full w-full flex-wrap justify-around">
-            <LayoutGroup id="groupRowPlusColFront">
-              {new Array(count).fill(null).map((_, index) => (
+            <LayoutGroup id={`front-${id}`}>
+              {Array.from({ length: count }, (_, index) => (
                 <motion.div
                   layout
-                  layoutId={id + 'f' + index}
-                  key={id + 'f' + index}
+                  layoutId={`${id}f${index}`}
+                  key={index}
                   className="rounded-[50%] bg-neutral-800"
                   style={{
                     height: (ref.current?.clientHeight || 10) / 3 + 1,
@@ -58,12 +65,12 @@ const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cel
           className={cn('absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md p-1 backface-hidden', backColor)}
         >
           <div className="flex-center h-full w-full flex-wrap justify-around">
-            <LayoutGroup id="groupRowPlusColBack">
-              {new Array(count).fill(null).map((_, index) => (
+            <LayoutGroup id={`back-${id}`}>
+              {Array.from({ length: count }, (_, index) => (
                 <motion.div
                   layout
-                  layoutId={id + 'b' + index}
-                  key={id + 'b' + index}
+                  layoutId={`${id}b${index}`}
+                  key={index}
                   className="rounded-[50%] bg-neutral-800"
                   style={{
                     height: (ref.current?.clientHeight || 10) / 3 + 1,
@@ -80,4 +87,4 @@ const DotSquare = ({ id, flip, count: initialCount, frontColor, backColor }: cel
   );
 };
 
-export default memo(DotSquare);
+export default DotSquare;

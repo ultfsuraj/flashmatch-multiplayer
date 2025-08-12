@@ -3,6 +3,7 @@
 import DotSquare from ' @/components/DotSquare';
 import { useAppSelector } from ' @/redux/hooks';
 import { HTMLMotionProps, motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 
 const ICONS: string[] = [
   'https://www.svgrepo.com/show/521343/crying-face.svg',
@@ -23,8 +24,13 @@ export type ColorWarsContainerProps = {
 } & HTMLMotionProps<'div'>;
 
 const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ColorWarsContainerProps) => {
-  const rows = useAppSelector((state) => state.colorWarsState.rows);
-  const cells = useAppSelector((state) => state.colorWarsState.cells);
+  const rows = useAppSelector((state) => state.colorWarsState.gameInfo.rows);
+  const [cellItems, setCellItems] = useState(() => new Array(rows * rows).fill(null));
+  useEffect(() => {
+    setCellItems(new Array(rows * rows).fill(null));
+  }, [rows]);
+
+  console.log('container rerender');
 
   return (
     <motion.div
@@ -60,15 +66,8 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
         }}
       >
-        {Object.values(cells).map((props) => (
-          <DotSquare
-            key={props.id}
-            id={props.id}
-            count={props.count}
-            flip={props.flip}
-            backColor={props.backColor}
-            frontColor={props.backColor}
-          />
+        {cellItems.map((_, index) => (
+          <DotSquare key={index} id={index} />
         ))}
       </div>
 
