@@ -31,6 +31,7 @@ const DotSquare = ({ id }: { id: number }) => {
         dispatch(spread(id));
       }
     }
+    setIsAnimating(true);
     animateSpread();
   }, [cell, dispatch]);
 

@@ -39,17 +39,19 @@ export const gameSlice = createSlice({
     increaseTurn: (state, action: PayloadAction<number>) => {
       console.log('turn ' + state.gameInfo.turn);
       const prev = state.cells[action.payload];
-      const turn = state.gameInfo.turn;
+      const { turn, color1, color2, neutralColor } = state.gameInfo;
       switch (turn) {
         case 1:
-          prev.frontColor = state.gameInfo.color1;
+          prev.frontColor = color1;
           break;
         case 2:
-          if (prev.frontColor == state.gameInfo.color1) return;
-          prev.frontColor = state.gameInfo.color2;
+          if (prev.frontColor == color1) return;
+          prev.frontColor = color2;
           break;
         default:
-          if (prev.frontColor == state.gameInfo.neutralColor) return;
+          if (prev.frontColor == neutralColor) return;
+          if (turn % 2 == 1 && prev.frontColor != color1) return;
+          if (turn % 2 == 0 && prev.frontColor != color2) return;
       }
       prev.count += 1;
       state.cells[prev.id] = prev;
