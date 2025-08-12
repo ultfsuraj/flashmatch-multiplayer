@@ -1,6 +1,10 @@
 'use client';
 
+import ChessPiece from ' @/components/ChessPiece';
+import { cn } from ' @/utils/cn';
 import { HTMLMotionProps, motion } from 'motion/react';
+import Image from 'next/image';
+import { useEffect, useLayoutEffect, useState } from 'react';
 
 const ICONS: string[] = [
   'https://www.svgrepo.com/show/521343/crying-face.svg',
@@ -21,6 +25,8 @@ export type ChessContainerProps = {
 } & HTMLMotionProps<'div'>;
 
 const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
+  const colors = ['bg-stone-300', 'bg-stone-500'];
+
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden border-2 font-semibold text-neutral-400"
@@ -45,7 +51,35 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           close
         </motion.button>
       </div>
-      <section>ChessContainer {index}</section>
+
+      <section className="relative aspect-square w-[95%]">
+        <div
+          className="absolute grid h-full w-full bg-neutral-700"
+          style={{
+            gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
+          }}
+        >
+          {Array.from({ length: 64 }, (_, index) => (
+            <div
+              key={index}
+              className={cn('h-full w-full', (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? colors[0] : colors[1])}
+            />
+          ))}
+        </div>
+        <div
+          className="absolute grid h-full w-full bg-transparent"
+          style={{
+            gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
+          }}
+        >
+          {Array.from({ length: 32 }, (_, index) => (
+            <ChessPiece key={index} id={index} />
+          ))}
+        </div>
+      </section>
+      <div></div>
       <div></div>
     </motion.div>
   );

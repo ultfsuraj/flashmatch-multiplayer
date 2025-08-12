@@ -37,7 +37,7 @@ const COLORS: Record<number, string> = {
   2: '#ffb400',
   3: '#c73b32',
   4: '#32b4ff',
-  5: '#995f3d',
+  5: '#1e2832',
   6: '#0ac832',
   7: '#1e2832',
 };
