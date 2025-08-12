@@ -9,15 +9,21 @@ import { ChessContainerProps } from ' @/containers/ChessContainer';
 
 const DYNAMIC_COMPONENTS = new Array(8);
 
-for (let i = 0; i < 7; i++) {
+for (let i = 0; i < 8; i++) {
   DYNAMIC_COMPONENTS[i] = lazy(
     () =>
-      new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
-        setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
+      new Promise<typeof import(' @/containers/NewGameContainer')>((resolve) =>
+        setTimeout(() => resolve(import(' @/containers/NewGameContainer')), 1000)
       )
   );
 }
 
+DYNAMIC_COMPONENTS[5] = lazy(
+  () =>
+    new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
+      setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
+    )
+);
 DYNAMIC_COMPONENTS[7] = lazy(
   () =>
     new Promise<typeof import(' @/containers/ColorWarsContainer')>((resolve) =>

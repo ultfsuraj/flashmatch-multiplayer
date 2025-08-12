@@ -13,22 +13,22 @@ const ICONS: string[] = [
   'https://www.svgrepo.com/show/521386/kissing-face.svg',
 ];
 
-export type ChessContainerProps = {
+export type NewGameContainerProps = {
   index: number;
   iconHeight: number | string;
   gameOpen: boolean;
   onClick: () => void;
 } & HTMLMotionProps<'div'>;
 
-const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
+const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: NewGameContainerProps) => {
   return (
     <motion.div
-      className="flex flex-col items-center justify-between overflow-hidden border-2 font-semibold text-neutral-400"
+      className="flex flex-col items-center justify-between overflow-hidden border-2 font-semibold text-neutral-900"
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">
-        <motion.img
-          className="flex-center top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
+        <motion.div
+          className="flex-center top-0 left-0 z-10 rounded-full bg-neutral-800 bg-contain bg-no-repeat"
           layout
           initial={false}
           animate={{
@@ -38,17 +38,16 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
             position: gameOpen ? 'relative' : 'absolute',
           }}
           transition={MotionDivProps.transition}
-          src={ICONS[index]}
         />
-        <h3 className="font-bangers font-semibold text-white">Chess</h3>
+        <h3 className="font-bangers font-semibold text-neutral-900">New Game</h3>
         <motion.button className="bg-black px-2 py-1 font-semibold text-white" onClick={() => onClick()}>
           close
         </motion.button>
       </div>
-      <section>ChessContainer {index}</section>
+      <section>Coming Soon ...</section>
       <div></div>
     </motion.div>
   );
 };
 
-export default ChessContainer;
+export default NewGameContainer;
