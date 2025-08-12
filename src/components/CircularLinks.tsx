@@ -1,14 +1,15 @@
 'use client';
 
-import { motion, MotionNodeAnimationOptions, scale, useAnimation } from 'motion/react';
-import { ComponentType, lazy, ReactNode, useEffect, useRef, useState } from 'react';
-import type { ChessContainerProps } from ' @/containers/ChessContainer';
+import { motion, useAnimation } from 'motion/react';
+import { ComponentType, lazy, useEffect, useRef, useState } from 'react';
+import type { ColorWarsContainerProps } from ' @/containers/ColorWarsContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
+import { ChessContainerProps } from ' @/containers/ChessContainer';
 
 const DYNAMIC_COMPONENTS = new Array(8);
 
-for (let i = 0; i < 8; i++) {
+for (let i = 0; i < 7; i++) {
   DYNAMIC_COMPONENTS[i] = lazy(
     () =>
       new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
@@ -16,6 +17,13 @@ for (let i = 0; i < 8; i++) {
       )
   );
 }
+
+DYNAMIC_COMPONENTS[7] = lazy(
+  () =>
+    new Promise<typeof import(' @/containers/ColorWarsContainer')>((resolve) =>
+      setTimeout(() => resolve(import(' @/containers/ColorWarsContainer')), 1000)
+    )
+);
 
 const COLORS: Record<number, string> = {
   0: '#ffe6d2',
@@ -114,7 +122,6 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   };
 
   const handleClick = (id: number) => {
-    console.log(open ? 'open' : 'closed');
     const control = controlsARR.current[id];
     control.start({
       height: !open ? '100vh' : div1Ref.current?.offsetHeight,
@@ -124,7 +131,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       scale: !open ? 1 : POSITIONS[id].scale,
       zIndex: !open ? POSITIONS.length + 50 : id + 2,
       borderRadius: !open ? '0%' : '50%',
-      transition: { type: 'spring', duration: 0.3, bounce: 0.2 },
+      transition: { type: 'spring', duration: 0.3, bounce: 0 },
     });
     if (!open) setGameOpen(true);
     setOpen((prev) => !prev);
@@ -157,7 +164,9 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         {/* items */}
 
         {POSITIONS.map((pos, index) => {
-          const Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
+          let Dynamic;
+          if (index == 7) Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ColorWarsContainerProps>;
+          else Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
 
           return (
             <motion.div
@@ -183,12 +192,16 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
             >
               <LazyComponent parentRef={containerRef}>
                 <Dynamic
-                  initial={{ width: 1, height: 1 }}
+                  initial={false}
                   animate={{
-                    width: gameOpen && pos.id == gameId ? '100vw' : 1,
-                    height: gameOpen && pos.id == gameId ? '100vh' : 1,
+                    width: gameOpen && pos.id == gameId ? '100vw' : div1Ref.current?.offsetWidth || 50,
+                    height: gameOpen && pos.id == gameId ? '100vh' : div1Ref.current?.offsetWidth || 50,
+                    borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
+                    userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
+                    touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
                   }}
                   transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
+                  layout
                   index={index}
                   onClick={() => {
                     if (gameOpen) {
@@ -197,6 +210,8 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     setGameOpen(false);
                     setGameId(-1);
                   }}
+                  iconHeight={div1Ref.current?.offsetHeight || 50}
+                  gameOpen={gameOpen && pos.id == gameId}
                 />
               </LazyComponent>
             </motion.div>

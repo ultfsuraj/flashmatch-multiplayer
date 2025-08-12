@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Montserrat, Bangers } from 'next/font/google';
 import './globals.css';
 
+import { Providers } from ' @/redux/Providers';
+
 const montserrat = Montserrat({
   variable: '--font-montserrat',
   subsets: ['latin'],
@@ -26,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} ${bangers.variable} overflow-hidden antialiased`}>{children}</body>
+      <Providers>
+        <body className={`${montserrat.variable} ${bangers.variable} overflow-hidden antialiased`}>{children}</body>
+      </Providers>
     </html>
   );
 }
