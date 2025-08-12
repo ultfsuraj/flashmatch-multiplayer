@@ -5,17 +5,25 @@ import { ComponentType, lazy, useEffect, useRef, useState } from 'react';
 import type { ColorWarsContainerProps } from ' @/containers/ColorWarsContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
+import { ChessContainerProps } from ' @/containers/ChessContainer';
 
 const DYNAMIC_COMPONENTS = new Array(8);
 
-for (let i = 0; i < 8; i++) {
+for (let i = 0; i < 7; i++) {
   DYNAMIC_COMPONENTS[i] = lazy(
     () =>
-      new Promise<typeof import(' @/containers/ColorWarsContainer')>((resolve) =>
-        setTimeout(() => resolve(import(' @/containers/ColorWarsContainer')), 1000)
+      new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
+        setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
       )
   );
 }
+
+DYNAMIC_COMPONENTS[7] = lazy(
+  () =>
+    new Promise<typeof import(' @/containers/ColorWarsContainer')>((resolve) =>
+      setTimeout(() => resolve(import(' @/containers/ColorWarsContainer')), 1000)
+    )
+);
 
 const COLORS: Record<number, string> = {
   0: '#ffe6d2',
@@ -156,7 +164,9 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         {/* items */}
 
         {POSITIONS.map((pos, index) => {
-          const Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ColorWarsContainerProps>;
+          let Dynamic;
+          if (index == 7) Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ColorWarsContainerProps>;
+          else Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
 
           return (
             <motion.div

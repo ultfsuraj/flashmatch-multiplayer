@@ -1,7 +1,8 @@
 'use client';
 
 import DotSquare from ' @/components/DotSquare';
-import { useAppSelector } from ' @/redux/hooks';
+import { resetCells } from ' @/redux/features/colorWarsSlice';
+import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { HTMLMotionProps, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
@@ -26,6 +27,8 @@ export type ColorWarsContainerProps = {
 const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ColorWarsContainerProps) => {
   const rows = useAppSelector((state) => state.colorWarsState.gameInfo.rows);
   const [cellItems, setCellItems] = useState(() => new Array(rows * rows).fill(null));
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     setCellItems(new Array(rows * rows).fill(null));
   }, [rows]);
@@ -52,7 +55,13 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           src={ICONS[index]}
         />
         <h3 className="font-bangers font-semibold text-white">Color Wars</h3>
-        <motion.button className="bg-black px-2 py-1 font-semibold text-white" onClick={() => onClick()}>
+        <motion.button
+          className="bg-black px-2 py-1 font-semibold text-white"
+          onClick={() => {
+            dispatch(resetCells());
+            onClick();
+          }}
+        >
           close
         </motion.button>
       </div>

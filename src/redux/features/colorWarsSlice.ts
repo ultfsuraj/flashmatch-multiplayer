@@ -63,8 +63,14 @@ export const gameSlice = createSlice({
         frontColor: state.gameInfo.neutralColor,
       };
     },
+    updateOne: (state, action: PayloadAction<Pick<cellType, 'id'> & Partial<Omit<cellType, 'id'>>>) => {
+      state.cells[action.payload.id] = { ...state.cells[action.payload.id], ...action.payload };
+    },
+    resetCells: (state) => {
+      state.cells = initialState.cells;
+    },
   },
 });
 
-export const { increaseTurn, spread } = gameSlice.actions;
+export const { increaseTurn, spread, updateOne, resetCells } = gameSlice.actions;
 export default gameSlice.reducer;

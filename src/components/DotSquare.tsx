@@ -12,10 +12,11 @@ const DotSquare = ({ id }: { id: number }) => {
   const cell = useAppSelector((state) => state.colorWarsState.cells[id]);
   const { count, flip, backColor, frontColor } = cell;
 
-  const [isAnimating, setIsAnimating] = useState<boolean>(flip);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
   console.log('rerender');
+  console.log(flip + '  ' + isAnimating);
   const handleClick = () => {
     if (!isAnimating && count < 4) {
       dispatch(increaseTurn(id));
@@ -24,8 +25,11 @@ const DotSquare = ({ id }: { id: number }) => {
 
   useEffect(() => {
     if (count > 3) {
-      dispatch(spread(id));
+      delayRun(() => {
+        dispatch(spread(id));
+      }, 700);
     }
+    setIsAnimating(cell.flip);
   }, [count, id, dispatch]);
 
   return (
@@ -33,7 +37,7 @@ const DotSquare = ({ id }: { id: number }) => {
       <motion.div
         layout
         className="relative h-full w-full transform-3d"
-        animate={{ rotateY: flip ? 180 : 0 }}
+        animate={{ rotateY: isAnimating ? 180 : 0 }}
         transition={{
           duration: 0.3,
         }}
