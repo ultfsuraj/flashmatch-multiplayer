@@ -53,7 +53,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           src={ICONS[index]}
         />
         <h3 className="font-bangers font-semibold text-white">Color Wars</h3>
-        <motion.button
+        <button
           className="bg-black px-2 py-1 font-semibold text-white"
           onClick={() => {
             dispatch(resetGame());
@@ -61,7 +61,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           }}
         >
           close
-        </motion.button>
+        </button>
       </div>
 
       {/* grid */}

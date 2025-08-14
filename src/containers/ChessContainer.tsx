@@ -1,6 +1,8 @@
 'use client';
 
 import ChessPiece from ' @/components/ChessPiece';
+import { resetGame } from ' @/redux/features/chessSlice';
+import { useAppDispatch } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
@@ -25,7 +27,8 @@ export type ChessContainerProps = {
 } & HTMLMotionProps<'div'>;
 
 const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
-  const colors = ['bg-stone-300', 'bg-stone-500'];
+  const colors = ['bg-neutral-100', 'bg-neutral-500'];
+  const dispatch = useAppDispatch();
 
   return (
     <motion.div
@@ -35,7 +38,6 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
           className="flex-center top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
-          layout
           initial={false}
           animate={{
             width: gameOpen ? '6vh' : iconHeight,
@@ -47,14 +49,20 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           src={ICONS[index]}
         />
         <h3 className="font-bangers font-semibold text-white">Chess</h3>
-        <motion.button className="bg-black px-2 py-1 font-semibold text-white" onClick={() => onClick()}>
+        <motion.button
+          className="bg-black px-2 py-1 font-semibold text-white"
+          onClick={() => {
+            dispatch(resetGame());
+            onClick();
+          }}
+        >
           close
         </motion.button>
       </div>
 
       <section className="relative aspect-square w-[95%]">
-        <div
-          className="absolute grid h-full w-full bg-neutral-700"
+        <motion.div
+          className="absolute grid h-full w-full bg-neutral-700 opacity-85"
           style={{
             gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
             gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
@@ -66,7 +74,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
               className={cn('h-full w-full', (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? colors[0] : colors[1])}
             />
           ))}
-        </div>
+        </motion.div>
         <div
           className="absolute grid h-full w-full bg-transparent"
           style={{
