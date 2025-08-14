@@ -76,14 +76,28 @@ export const chessSlice = createSlice({
       action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
     ) => {
       const { id, x, y } = action.payload;
-      state.pieces[id] = { ...state.pieces[id], ...action.payload };
       const { name, color } = state.pieces[id];
+
+      if (name == KING) {
+        state.pieces[id].firstMove = false;
+        // Castling
+        if (x - state.pieces[id].x == 2) {
+          state.pieces[color ? 31 : 7].x = x - 1;
+        }
+        if (x - state.pieces[id].x == -2) {
+          state.pieces[color ? 24 : 0].x = x + 1;
+        }
+      }
+      if (name == ROOK) {
+        state.pieces[id].firstMove = false;
+      }
+
+      state.pieces[id] = { ...state.pieces[id], x: action.payload.x, y: action.payload.y };
       // pawn promotion
-      if ((name == PAWN && y == 1) || y == 8) {
+      if (name == PAWN && (y == 1 || y == 8)) {
         state.pieces[id].name = QUEEN;
         state.pieces[id].url = color ? WHITE_PIECES.queen : BLACK_PIECES.queen;
       }
-      // cacelation
 
       // kill
       const kill = Object.values(state.pieces).filter((piece) => {
@@ -199,14 +213,14 @@ function generatePieces() {
   const pieces: Record<number, pieceType> = {};
 
   const initialChessBoard: pieceType[] = [
-    { id: 0, name: ROOK, color: false, x: 1, y: 1, url: BLACK_PIECES.rook },
+    { id: 0, name: ROOK, color: false, x: 1, y: 1, url: BLACK_PIECES.rook, firstMove: true },
     { id: 1, name: KNIGHT, color: false, x: 2, y: 1, url: BLACK_PIECES.knight },
     { id: 2, name: BISHOP, color: false, x: 3, y: 1, url: BLACK_PIECES.bishop },
     { id: 3, name: QUEEN, color: false, x: 4, y: 1, url: BLACK_PIECES.queen },
     { id: 4, name: KING, color: false, x: 5, y: 1, url: BLACK_PIECES.king, firstMove: true },
     { id: 5, name: BISHOP, color: false, x: 6, y: 1, url: BLACK_PIECES.bishop },
     { id: 6, name: KNIGHT, color: false, x: 7, y: 1, url: BLACK_PIECES.knight },
-    { id: 7, name: ROOK, color: false, x: 8, y: 1, url: BLACK_PIECES.rook },
+    { id: 7, name: ROOK, color: false, x: 8, y: 1, url: BLACK_PIECES.rook, firstMove: true },
 
     { id: 8, name: PAWN, color: false, x: 1, y: 2, url: BLACK_PIECES.pawn },
     { id: 9, name: PAWN, color: false, x: 2, y: 2, url: BLACK_PIECES.pawn },
@@ -226,14 +240,14 @@ function generatePieces() {
     { id: 22, name: PAWN, color: true, x: 7, y: 7, url: WHITE_PIECES.pawn },
     { id: 23, name: PAWN, color: true, x: 8, y: 7, url: WHITE_PIECES.pawn },
 
-    { id: 24, name: ROOK, color: true, x: 1, y: 8, url: WHITE_PIECES.rook },
+    { id: 24, name: ROOK, color: true, x: 1, y: 8, url: WHITE_PIECES.rook, firstMove: true },
     { id: 25, name: KNIGHT, color: true, x: 2, y: 8, url: WHITE_PIECES.knight },
     { id: 26, name: BISHOP, color: true, x: 3, y: 8, url: WHITE_PIECES.bishop },
     { id: 27, name: QUEEN, color: true, x: 4, y: 8, url: WHITE_PIECES.queen },
     { id: 28, name: KING, color: true, x: 5, y: 8, url: WHITE_PIECES.king, firstMove: true },
     { id: 29, name: BISHOP, color: true, x: 6, y: 8, url: WHITE_PIECES.bishop },
     { id: 30, name: KNIGHT, color: true, x: 7, y: 8, url: WHITE_PIECES.knight },
-    { id: 31, name: ROOK, color: true, x: 8, y: 8, url: WHITE_PIECES.rook },
+    { id: 31, name: ROOK, color: true, x: 8, y: 8, url: WHITE_PIECES.rook, firstMove: true },
   ];
 
   initialChessBoard.forEach((piece, index) => {
@@ -469,6 +483,8 @@ function getKingMoves(pieces: pieceType[], color: boolean, x: number, y: number)
     { x: x - 1, y: y + 1 },
   ];
 
+  let firstMove = false;
+
   points = points.filter((point) => {
     const r = point.x,
       c = point.y;
@@ -481,7 +497,46 @@ function getKingMoves(pieces: pieceType[], color: boolean, x: number, y: number)
     });
     return !obstacle;
   });
-  // cacelation, firstMove... left +2 -2 x
+  // Castling, firstMove... left +2 -2 x
+  const right: pieceType[] = [];
+  let sides: point[] = [
+    { x: x + 1, y: y },
+    { x: x + 2, y: y },
+    { x: x + 3, y: y },
+  ];
+  sides.forEach((point) => {
+    for (const piece of pieces) {
+      if (piece.x == point.x && piece.y == point.y) {
+        right.push(piece);
+        break;
+      }
+      if (piece.name == KING && piece.color == color) firstMove = firstMove || piece.firstMove!;
+    }
+  });
+  console.log({ ...right[0] });
+  if (right.length == 1 && right[0].name == ROOK && color == right[0].color && firstMove && right[0].firstMove) {
+    points.push({ x: x + 2, y: y });
+  }
+
+  const left: pieceType[] = [];
+  sides = [
+    { x: x - 1, y: y },
+    { x: x - 2, y: y },
+    { x: x - 3, y: y },
+    { x: x - 4, y: y },
+  ];
+  sides.forEach((point) => {
+    for (const piece of pieces) {
+      if (piece.x == point.x && piece.y == point.y) {
+        left.push(piece);
+        break;
+      }
+    }
+  });
+  console.log(left.length);
+  if (left.length == 1 && left[0].name == ROOK && color == left[0].color && firstMove && left[0].firstMove) {
+    points.push({ x: x - 2, y: y });
+  }
 
   return points;
 }
