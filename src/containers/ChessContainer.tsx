@@ -2,7 +2,7 @@
 
 import ChessPiece from ' @/components/ChessPiece';
 import { resetGame } from ' @/redux/features/chessSlice';
-import { useAppDispatch } from ' @/redux/hooks';
+import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
@@ -27,7 +27,9 @@ export type ChessContainerProps = {
 } & HTMLMotionProps<'div'>;
 
 const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
-  const colors = ['bg-neutral-100', 'bg-neutral-500'];
+  // const colors = ['bg-neutral-100', 'bg-neutral-500'];
+  const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
+  const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const dispatch = useAppDispatch();
 
   return (
@@ -62,7 +64,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
 
       <section className="relative aspect-square w-[95%]">
         <motion.div
-          className="absolute grid h-full w-full bg-neutral-700 opacity-85"
+          className="absolute grid h-full w-full bg-neutral-700"
           style={{
             gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
             gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
@@ -82,8 +84,8 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
             gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
           }}
         >
-          {Array.from({ length: 32 }, (_, index) => (
-            <ChessPiece key={index} id={index} />
+          {pieceIDs.map((id) => (
+            <ChessPiece key={id} id={id} />
           ))}
         </div>
       </section>

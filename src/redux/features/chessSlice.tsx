@@ -48,6 +48,7 @@ type gameState = {
   };
   cells: Record<number, cellType>;
   pieces: Record<number, pieceType>;
+  pieceIDs: number[];
   moves: Record<number, Array<point>>;
 };
 
@@ -62,6 +63,7 @@ const initialState: gameState = {
   },
   cells: generateCells(),
   pieces: generatePieces(),
+  pieceIDs: Array.from({ length: 32 }, (_, index) => index),
   moves: generateMoves(),
 };
 
@@ -75,15 +77,36 @@ export const chessSlice = createSlice({
     ) => {
       const { id, x, y } = action.payload;
       state.pieces[id] = { ...state.pieces[id], ...action.payload };
+      const { name, color } = state.pieces[id];
       // pawn promotion
-      if ((state.pieces[id].name == PAWN && y == 1) || y == 8) {
+      if ((name == PAWN && y == 1) || y == 8) {
         state.pieces[id].name = QUEEN;
-        state.pieces[id].url = state.pieces[id].color ? WHITE_PIECES.queen : BLACK_PIECES.queen;
+        state.pieces[id].url = color ? WHITE_PIECES.queen : BLACK_PIECES.queen;
       }
       // cacelation
 
+      // kill
+      const kill = Object.values(state.pieces).filter((piece) => {
+        if (piece.x == x && piece.y == y && piece.color != color) {
+          return true;
+        }
+      });
+      if (kill.length == 1) {
+        state.pieceIDs = state.pieceIDs.filter((id) => id != kill[0].id);
+        state.pieces = Object.values(state.pieces)
+          .filter((piece) => piece.id != kill[0].id)
+          .reduce(
+            (acc, item) => {
+              acc[item.id] = item;
+              return acc;
+            },
+            {} as Record<number, pieceType>
+          );
+      }
+
       state.moves[id] = [];
       state.gameInfo.turn += 1;
+
       // check ?
       // checkmate ?
     },
@@ -458,6 +481,7 @@ function getKingMoves(pieces: pieceType[], color: boolean, x: number, y: number)
     });
     return !obstacle;
   });
+  // cacelation, firstMove... left +2 -2 x
 
   return points;
 }
