@@ -49,7 +49,7 @@ type gameState = {
   cells: Record<number, cellType>;
   pieces: Record<number, pieceType>;
   pieceIDs: number[];
-  moves: Record<number, Array<point>>;
+  moves: Record<number, { show: boolean; points: Array<point> }>;
 };
 
 const initialState: gameState = {
@@ -76,62 +76,14 @@ export const chessSlice = createSlice({
       action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
     ) => {
       const { id, x, y } = action.payload;
-      const { name, color } = state.pieces[id];
-
-      if (name == KING) {
-        state.pieces[id].firstMove = false;
-        // Castling
-        if (x - state.pieces[id].x == 2) {
-          state.pieces[color ? 31 : 7].x = x - 1;
-        }
-        if (x - state.pieces[id].x == -2) {
-          state.pieces[color ? 24 : 0].x = x + 1;
-        }
-      }
-      if (name == ROOK) {
-        state.pieces[id].firstMove = false;
-      }
-
-      state.pieces[id] = { ...state.pieces[id], x: action.payload.x, y: action.payload.y };
-      // pawn promotion
-      if (name == PAWN && (y == 1 || y == 8)) {
-        state.pieces[id].name = QUEEN;
-        state.pieces[id].url = color ? WHITE_PIECES.queen : BLACK_PIECES.queen;
-      }
-
-      // kill
-      const kill = Object.values(state.pieces).filter((piece) => {
-        if (piece.x == x && piece.y == y && piece.color != color) {
-          return true;
-        }
-      });
-      if (kill.length == 1) {
-        state.pieceIDs = state.pieceIDs.filter((id) => id != kill[0].id);
-        state.pieces = Object.values(state.pieces)
-          .filter((piece) => piece.id != kill[0].id)
-          .reduce(
-            (acc, item) => {
-              acc[item.id] = item;
-              return acc;
-            },
-            {} as Record<number, pieceType>
-          );
-      }
-
-      state.moves[id] = [];
+      const newState = makeMove(id, x, y, state.pieces, [...state.pieceIDs]);
+      state.pieceIDs = newState.pieceIDs;
+      state.pieces = newState.pieces;
       state.gameInfo.turn += 1;
-
+      state.moves = generateMoves();
       // check ?
       // checkmate ?
-    },
-    updateKingCheck: (state, action: PayloadAction<boolean>) => {
-      const color = action.payload;
-      const attackers = getKingAttackers(Object.values(state.pieces), color);
-      state.checked.king = attackers.length > 0;
-      state.checked.color = color;
-      state.checked.attackers = attackers;
-      console.log('checked ' + (color ? 'White' : 'Black'));
-      console.log(attackers.map((a) => (color ? 'White ' : 'Black ' + a.name)));
+      // we'll see that on next color's move
     },
     getMoves: (state, action: PayloadAction<number>) => {
       const id = action.payload;
@@ -139,66 +91,105 @@ export const chessSlice = createSlice({
       const { x, y, color, name } = state.pieces[id];
       if ((state.gameInfo.turn % 2 == 1) != color) return;
       for (let i = 0; i < 32; i++) {
-        state.moves[i] = [];
+        state.moves[i].show = false;
       }
-      if (state.checked.attackers.length > 1 && name != KING) return;
-
-      switch (name) {
-        case PAWN:
-          moves = getPawnMoves(Object.values(state.pieces), color, x, y);
-          break;
-        case BISHOP:
-          moves = getStarMoves(Object.values(state.pieces), color, x, y, [
-            { x: 1, y: 1 },
-            { x: 1, y: -1 },
-            { x: -1, y: 1 },
-            { x: -1, y: -1 },
-          ]);
-          break;
-        case ROOK:
-          moves = getStarMoves(Object.values(state.pieces), color, x, y, [
-            { x: 0, y: 1 },
-            { x: 0, y: -1 },
-            { x: -1, y: 0 },
-            { x: 1, y: 0 },
-          ]);
-          break;
-        case QUEEN:
-          moves = getStarMoves(Object.values(state.pieces), color, x, y, [
-            { x: 0, y: 1 },
-            { x: 0, y: -1 },
-            { x: -1, y: 0 },
-            { x: 1, y: 0 },
-            { x: 1, y: 1 },
-            { x: 1, y: -1 },
-            { x: -1, y: 1 },
-            { x: -1, y: -1 },
-          ]);
-          break;
-        case KNIGHT:
-          moves = getKnightMoves(Object.values(state.pieces), color, x, y);
-          break;
-        case KING:
-          moves = getKingMoves(Object.values(state.pieces), color, x, y);
-          break;
+      if (state.moves[id].points.length != 0) {
+        state.moves[id].show = true;
+        return;
       }
+      const piecesValues = Object.values(state.pieces);
+      if (state.checked)
+        switch (name) {
+          case PAWN:
+            moves = getPawnMoves(piecesValues, color, x, y);
+            break;
+          case BISHOP:
+            moves = getStarMoves(piecesValues, color, x, y, [
+              { x: 1, y: 1 },
+              { x: 1, y: -1 },
+              { x: -1, y: 1 },
+              { x: -1, y: -1 },
+            ]);
+            break;
+          case ROOK:
+            moves = getStarMoves(piecesValues, color, x, y, [
+              { x: 0, y: 1 },
+              { x: 0, y: -1 },
+              { x: -1, y: 0 },
+              { x: 1, y: 0 },
+            ]);
+            break;
+          case QUEEN:
+            moves = getStarMoves(piecesValues, color, x, y, [
+              { x: 0, y: 1 },
+              { x: 0, y: -1 },
+              { x: -1, y: 0 },
+              { x: 1, y: 0 },
+              { x: 1, y: 1 },
+              { x: 1, y: -1 },
+              { x: -1, y: 1 },
+              { x: -1, y: -1 },
+            ]);
+            break;
+          case KNIGHT:
+            moves = getKnightMoves(piecesValues, color, x, y);
+            break;
+          case KING:
+            moves = getKingMoves(piecesValues, color, x, y);
+            break;
+        }
+      // moving this will put check on king ?
+      moves = moves.filter((move) => {
+        let include = true;
+        let copyPieces: Record<number, pieceType> = JSON.parse(JSON.stringify(state.pieces));
+        copyPieces = makeMove(id, move.x, move.y, copyPieces, [...state.pieceIDs]).pieces;
+        const attackers = getKingAttackers(Object.values(copyPieces), color);
+        if (attackers.length != 0) {
+          include = false;
+        }
+        return include;
+      });
 
-      // if >=2 attackers ?? only king can move.... for all others remove their valid moves...
-      // if 1 attacker, does moving this kill it, or block the path
-      // moving this will put check on king ? change position of piece, check attackers, change back to original
-
-      state.moves[id] = moves;
+      state.moves[id].points = moves;
+      state.moves[id].show = true;
+    },
+    updateAttackers: (state, action: PayloadAction<boolean>) => {
+      const attackers: pieceType[] = getKingAttackers(Object.values(state.pieces), action.payload);
+      if (attackers.length > 0) {
+        state.checked.king = true;
+        state.checked.color = action.payload;
+        state.checked.attackers = attackers;
+      } else {
+        state.checked.king = false;
+        state.checked.attackers = [];
+      }
     },
     resetGame: (state) => {
-      state.gameInfo = initialState.gameInfo;
-      state.pieces = initialState.pieces;
-      state.cells = initialState.cells;
-      state.moves = initialState.moves;
+      const resetState: gameState = {
+        gameInfo: {
+          turn: 1,
+        },
+        checked: {
+          king: false,
+          color: false,
+          attackers: [],
+        },
+        cells: generateCells(),
+        pieces: generatePieces(),
+        pieceIDs: Array.from({ length: 32 }, (_, index) => index),
+        moves: generateMoves(),
+      };
+      state.gameInfo = resetState.gameInfo;
+      state.checked = resetState.checked;
+      state.cells = resetState.cells;
+      state.pieces = resetState.pieces;
+      state.pieceIDs = resetState.pieceIDs;
+      state.moves = resetState.moves;
     },
   },
 });
 
-export const { updatePiece, getMoves, resetGame, updateKingCheck } = chessSlice.actions;
+export const { updatePiece, getMoves, resetGame, updateAttackers } = chessSlice.actions;
 export default chessSlice.reducer;
 
 function generateCells() {
@@ -258,9 +249,9 @@ function generatePieces() {
 }
 
 function generateMoves() {
-  const moves: Record<number, Array<point>> = {};
+  const moves: Record<number, { show: boolean; points: Array<point> }> = {};
   for (let i = 0; i < 32; i++) {
-    moves[i] = [];
+    moves[i] = { show: false, points: [] };
   }
   return moves;
 }
@@ -305,6 +296,11 @@ function getDiagonalAttackers(kingX: number, kingY: number, kingColor: boolean, 
         if (attacker.x == x && attacker.y == y) {
           if (attacker.color != kingColor && (attacker.name == QUEEN || attacker.name == BISHOP)) {
             attackers.push(attacker);
+          }
+          if (attacker.color != kingColor && attacker.name == PAWN) {
+            if ((kingColor && attacker.y - kingY == 1) || (!kingColor && kingY - attacker.y == 1)) {
+              attackers.push(attacker);
+            }
           }
           return;
         }
@@ -352,18 +348,20 @@ function getKnightAttackers(kingX: number, kingY: number, kingColor: boolean, pi
 }
 
 function getKingAttackers(pieces: pieceType[], kingColor: boolean): pieceType[] {
-  const attackers: pieceType[] = [];
+  let attackers: pieceType[] = [];
   let kingX = 0;
   let kingY = 0;
-  Object.values(pieces).forEach(({ x, y, color, name }) => {
+  pieces.forEach(({ x, y, color, name }) => {
     if (kingColor == color && name == KING) {
       kingX = x;
       kingY = y;
     }
   });
-  attackers.concat(getDiagonalAttackers(kingX, kingY, kingColor, pieces));
-  attackers.concat(getStraightAttackers(kingX, kingY, kingColor, pieces));
-  attackers.concat(getKnightAttackers(kingX, kingY, kingColor, pieces));
+  attackers = [
+    ...getDiagonalAttackers(kingX, kingY, kingColor, pieces),
+    ...getStraightAttackers(kingX, kingY, kingColor, pieces),
+    ...getKnightAttackers(kingX, kingY, kingColor, pieces),
+  ];
   return attackers;
 }
 
@@ -513,7 +511,7 @@ function getKingMoves(pieces: pieceType[], color: boolean, x: number, y: number)
       if (piece.name == KING && piece.color == color) firstMove = firstMove || piece.firstMove!;
     }
   });
-  console.log({ ...right[0] });
+
   if (right.length == 1 && right[0].name == ROOK && color == right[0].color && firstMove && right[0].firstMove) {
     points.push({ x: x + 2, y: y });
   }
@@ -533,10 +531,63 @@ function getKingMoves(pieces: pieceType[], color: boolean, x: number, y: number)
       }
     }
   });
-  console.log(left.length);
+
   if (left.length == 1 && left[0].name == ROOK && color == left[0].color && firstMove && left[0].firstMove) {
     points.push({ x: x - 2, y: y });
   }
 
   return points;
+}
+
+function makeMove(
+  id: number,
+  x: number,
+  y: number,
+  pieces: Record<number, pieceType>,
+  pieceIDs: number[]
+): { pieces: Record<number, pieceType>; pieceIDs: number[] } {
+  const { name, color } = pieces[id];
+
+  if (name == KING) {
+    pieces[id].firstMove = false;
+    // Castling
+    if (x - pieces[id].x == 2) {
+      pieces[color ? 31 : 7].x = x - 1;
+    }
+    if (x - pieces[id].x == -2) {
+      pieces[color ? 24 : 0].x = x + 1;
+    }
+  }
+  if (name == ROOK) {
+    pieces[id].firstMove = false;
+  }
+
+  pieces[id] = { ...pieces[id], x, y };
+  // pawn promotion
+  if (name == PAWN && (y == 1 || y == 8)) {
+    pieces[id].name = QUEEN;
+    pieces[id].url = color ? WHITE_PIECES.queen : BLACK_PIECES.queen;
+  }
+
+  // kill
+  const kill = Object.values(pieces).filter((piece) => {
+    if (piece.x == x && piece.y == y && piece.color != color) {
+      return true;
+    }
+  });
+
+  if (kill.length == 1) {
+    pieceIDs = pieceIDs.filter((id) => id != kill[0].id);
+    pieces = Object.values(pieces)
+      .filter((piece) => piece.id != kill[0].id)
+      .reduce(
+        (acc, item) => {
+          acc[item.id] = item;
+          return acc;
+        },
+        {} as Record<number, pieceType>
+      );
+  }
+
+  return { pieces, pieceIDs };
 }
