@@ -2,6 +2,7 @@
 
 import { motion, useAnimation } from 'motion/react';
 import { ComponentType, lazy, useEffect, useRef, useState } from 'react';
+import { COLORS } from ' @/utils/constants';
 import type { ColorWarsContainerProps } from ' @/containers/ColorWarsContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
@@ -30,17 +31,6 @@ DYNAMIC_COMPONENTS[7] = lazy(
       setTimeout(() => resolve(import(' @/containers/ColorWarsContainer')), 1000)
     )
 );
-
-const COLORS: Record<number, string> = {
-  0: '#ffe6d2',
-  1: '#cc66cc',
-  2: '#ffb400',
-  3: '#c73b32',
-  4: '#32b4ff',
-  5: '#1e2832',
-  6: '#0ac832',
-  7: '#1e2832',
-};
 
 const getRadius = (w: number, h: number) => {
   if (h < 2 * w) return 0;
@@ -145,20 +135,21 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   };
 
   return (
-    <div ref={containerRef} className="h-[85vh] w-[65vw]">
+    <div ref={containerRef} className="h-[85%] w-[65%]">
       {/* circle */}
       <motion.div
-        className="relative rounded-full bg-teal-300"
+        className="rounded-full"
         style={{
           height: 2 * r,
           width: 2 * r,
           x: -(2 * r - w),
           y: -10,
+          backgroundImage: 'radial-gradient(circle at center, #000000 0%,#0a1026 40%, #1a237e 100%)',
         }}
       >
         {/* controller  */}
         <motion.div
-          className="absolute h-32 w-32 rounded-full border border-zinc-800 bg-transparent"
+          className="absolute h-32 w-32 rounded-full border border-neutral-500 bg-transparent"
           ref={div1Ref}
           style={{
             x: circX(0),
@@ -182,7 +173,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 x: pos.x,
                 y: pos.y,
                 scale: pos.scale,
-                backgroundColor: COLORS[pos.id],
+                backgroundImage: COLORS[pos.id],
                 borderRadius: '50%',
               }}
               animate={controlsARR.current[pos.id]}
@@ -200,11 +191,12 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 <Dynamic
                   initial={false}
                   animate={{
-                    width: gameOpen && pos.id == gameId ? '100vw' : div1Ref.current?.offsetWidth || 50,
-                    height: gameOpen && pos.id == gameId ? '100vh' : div1Ref.current?.offsetWidth || 50,
+                    width: gameOpen && pos.id == gameId ? window.innerWidth : div1Ref.current?.offsetWidth || 50,
+                    height: gameOpen && pos.id == gameId ? window.innerHeight : div1Ref.current?.offsetWidth || 50,
                     borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
                     userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
                     touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
+                    y: gameOpen && pos.id == gameId ? 1 - (containerRef.current?.offsetTop || 0) : 0,
                   }}
                   transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
                   layout
