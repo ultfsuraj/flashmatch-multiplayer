@@ -120,7 +120,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const handleClick = (id: number) => {
     const control = controlsARR.current[id];
     control.start({
-      height: !open ? '100vh' : div1Ref.current?.offsetHeight,
+      height: !open ? '100dvh' : div1Ref.current?.offsetHeight,
       width: !open ? '100vw' : div1Ref.current?.offsetWidth,
       x: !open ? 2 * r - w : POSITIONS[id].x,
       y: !open ? 10 : POSITIONS[id].y,
@@ -196,7 +196,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
                     userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
                     touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
-                    y: gameOpen && pos.id == gameId ? 1 - (containerRef.current?.offsetTop || 0) : 0,
+                    y: gameOpen && pos.id == gameId ? -(containerRef?.current?.getBoundingClientRect().top || 0) : 0,
                   }}
                   transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
                   layout
