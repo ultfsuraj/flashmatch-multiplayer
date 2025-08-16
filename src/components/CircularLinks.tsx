@@ -40,6 +40,7 @@ const getRadius = (w: number, h: number) => {
 const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const div1Ref = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<number>(3);
   const [open, setOpen] = useState<boolean>(false);
   const [gameOpen, setGameOpen] = useState<boolean>(false);
   const [gameId, setGameId] = useState<number>(-1);
@@ -114,6 +115,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         newPositions[i].id = i;
       }
     }
+    nameRef.current = (nameRef.current + POSITIONS.length + (down ? -1 : 1)) % POSITIONS.length;
     setPOSITIONS(newPositions);
   };
 
@@ -135,7 +137,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   };
 
   return (
-    <div ref={containerRef} className="h-[85%] w-[65%]">
+    <div ref={containerRef} className="h-[80%] w-[65%]">
       {/* circle */}
       <motion.div
         className="rounded-full"
@@ -144,7 +146,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           width: 2 * r,
           x: -(2 * r - w),
           y: -10,
-          backgroundImage: 'radial-gradient(circle at center, #000000 0%,#0a1026 40%, #1a237e 100%)',
+          backgroundImage: 'radial-gradient(circle at center, #000000 0%,#0a1026 60%, #fff 100%)',
         }}
       >
         {/* controller  */}
@@ -154,9 +156,20 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           style={{
             x: circX(0),
             y: circY(0),
-            scale: 1.2,
+            scale: 1.3,
+            backgroundImage: 'radial-gradient(circle at center, #000000 0%,#0a1026 60%, #fff 100%)',
           }}
         ></motion.div>
+        {/* game name */}
+        <motion.div
+          className="font-bangers flex-center absolute h-32 bg-transparent px-4 text-lg font-semibold text-white"
+          style={{
+            x: circX(0) - w + (div1Ref.current?.offsetWidth || 130) / 2,
+            y: circY(0),
+          }}
+        >
+          {COLORS[nameRef.current].name}
+        </motion.div>
 
         {/* items */}
 
@@ -173,7 +186,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 x: pos.x,
                 y: pos.y,
                 scale: pos.scale,
-                backgroundImage: COLORS[pos.id],
+                backgroundImage: COLORS[pos.id].bgImage,
                 borderRadius: '50%',
               }}
               animate={controlsARR.current[pos.id]}
