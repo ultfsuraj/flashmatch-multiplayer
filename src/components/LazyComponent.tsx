@@ -15,19 +15,24 @@ const LazyComponent = ({
     once: true,
     root: parentRef,
     margin: '-20% 0% -20% 0%',
-    amount: 0.5,
   });
 
   return (
     <div ref={ref}>
       {isInView ? (
         <Suspense
-          fallback={<h3 className="content-center bg-black text-center font-semibold text-emerald-400">Loading...</h3>}
+          fallback={
+            <h3 className="font-montserrat content-center rounded-md bg-black px-2 py-1 text-center font-semibold text-emerald-300">
+              Loading..
+            </h3>
+          }
         >
           {children}
         </Suspense>
       ) : (
-        <h3 className="content-center bg-black text-center font-semibold text-emerald-400">To load</h3>
+        <h3 className="font-montserrat content-center rounded-md bg-black px-2 py-1 text-center font-semibold text-white">
+          SWIPE
+        </h3>
       )}
     </div>
   );

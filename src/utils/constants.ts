@@ -15,22 +15,25 @@ export const ICONS: string[] = [
   'https://www.svgrepo.com/show/521344/confused-face.svg',
   'https://www.svgrepo.com/show/521348/drooling-face.svg',
   'https://www.svgrepo.com/show/521355/face-savoring-food.svg',
-  'https://www.svgrepo.com/show/521366/face-with-rolling-eyes.svg',
   'https://www.svgrepo.com/show/521368/face-with-tears-of-joy.svg',
+  'https://www.svgrepo.com/show/521366/face-with-rolling-eyes.svg',
   'https://www.svgrepo.com/show/521378/grinning-face-with-big-eyes.svg',
   'https://www.svgrepo.com/show/521386/kissing-face.svg',
 ];
 
-export const COLORS: Record<number, string> = {
-  0: 'linear-gradient(135deg, #000000 0%, #923CB5 100%)',
-  1: 'linear-gradient(120deg, #000000 0%, #7ED6DF 100%)',
-  2: 'linear-gradient(135deg, #232526 0%, #3A3A52 100%)',
-  3: 'linear-gradient(130deg, #232526 0%, #1e3c72 100%)',
-  4: 'linear-gradient(135deg, #000000 0%, #166D3B 100%)',
-  5: 'linear-gradient(120deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
-  6: 'linear-gradient(135deg, #000000 0%, #E84393 100%)',
-  7: 'linear-gradient(120deg, #232526 0%, #414345 100%)',
-};
+export const COLORS: Array<{ name: string; bgImage: string }> = [
+  { name: 'Discover', bgImage: 'linear-gradient(45deg, #874da2 0%, #c43a30 100%)' },
+  { name: 'Discover', bgImage: 'linear-gradient(120deg, #000000 0%, #7ED6DF 100%)' },
+  {
+    name: 'Discover',
+    bgImage: 'linear-gradient(-225deg, #231557 0%, #44107A 29%, #FF1361 67%, #FFF800 100%)',
+  },
+  { name: 'Discover', bgImage: 'linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)' },
+  { name: 'Discover', bgImage: 'linear-gradient(135deg, #000000 0%, #166D3B 100%)' },
+  { name: 'Chess', bgImage: 'linear-gradient(130deg, #232526 0%, #1e3c72 100%)' },
+  { name: 'Discover', bgImage: 'linear-gradient(135deg, #000000 0%, #E84393 100%)' },
+  { name: 'Color Wars', bgImage: 'linear-gradient(to right, #243949 0%, #517fa4 100%)' },
+];
 
 export const BLACK_PIECES: Record<string, string> = {
   pawn: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',

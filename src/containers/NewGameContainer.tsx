@@ -14,7 +14,7 @@ const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivPr
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-900"
-      style={{ backgroundImage: COLORS[index] }}
+      style={{ backgroundImage: COLORS[index].bgImage }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">
@@ -30,12 +30,12 @@ const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivPr
           transition={MotionDivProps.transition}
           src={ICONS[index]}
         />
-        <h3 className="font-bangers font-semibold text-neutral-900">New Game</h3>
-        <motion.button className="bg-black px-2 py-1 font-semibold text-white" onClick={() => onClick()}>
+        <h3 className="font-bangers text-white">New Game</h3>
+        <motion.button className="bg-black px-2 py-1 text-white" onClick={() => onClick()}>
           close
         </motion.button>
       </div>
-      <section>Coming Soon ...</section>
+      <section className="text-white">Coming Soon ...</section>
       <div></div>
     </motion.div>
   );
