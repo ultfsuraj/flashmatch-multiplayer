@@ -4,20 +4,10 @@ import ChessPiece from ' @/components/ChessPiece';
 import { resetGame } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
+import { COLORS, ICONS } from ' @/utils/constants';
 import { HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
-
-const ICONS: string[] = [
-  'https://www.svgrepo.com/show/521343/crying-face.svg',
-  'https://www.svgrepo.com/show/521344/confused-face.svg',
-  'https://www.svgrepo.com/show/521348/drooling-face.svg',
-  'https://www.svgrepo.com/show/521355/face-savoring-food.svg',
-  'https://www.svgrepo.com/show/521366/face-with-rolling-eyes.svg',
-  'https://www.svgrepo.com/show/521368/face-with-tears-of-joy.svg',
-  'https://www.svgrepo.com/show/521378/grinning-face-with-big-eyes.svg',
-  'https://www.svgrepo.com/show/521386/kissing-face.svg',
-];
 
 export type ChessContainerProps = {
   index: number;
@@ -34,7 +24,8 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-between overflow-hidden border-2 font-semibold text-neutral-400"
+      className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
+      style={{ backgroundImage: COLORS[index] }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">

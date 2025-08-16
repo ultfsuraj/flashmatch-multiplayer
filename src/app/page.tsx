@@ -4,7 +4,7 @@ import HomeContainer from ' @/containers/HomeContainer';
 
 const Page = () => {
   return (
-    <div className="h-[100vh] w-full overflow-hidden">
+    <div className="flex h-[100dvh] w-full items-center justify-start overflow-hidden bg-cyan-500">
       <div id="experiment-skeleton" className="flex-center h-full w-full">
         <p className="text-[1px] text-transparent">{seoText1}</p>
         <p className="font-bangers px-2 text-center text-3xl font-semibold">Loading...</p>

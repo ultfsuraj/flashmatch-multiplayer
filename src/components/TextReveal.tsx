@@ -23,9 +23,9 @@ const TextReveal = ({ text }: { text: string }) => {
   }, []);
 
   return (
-    <div className="flex-center relative h-[100vh] w-full overflow-hidden bg-neutral-50" id="suraj">
+    <div className="flex-center relative h-full w-full overflow-hidden bg-neutral-50" id="suraj">
       <motion.div
-        className="absolute -top-1 h-[40vh] w-full rounded-md bg-black"
+        className="absolute -top-1 h-[40%] w-full rounded-md bg-black"
         initial={{ x: '-100%' }}
         animate={{ x: '-20%' }}
         transition={{
