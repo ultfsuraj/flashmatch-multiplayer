@@ -281,7 +281,7 @@ function getDiagonalAttackers(kingX: number, kingY: number, kingColor: boolean, 
             attackers.push(attacker);
           }
           if (attacker.color != kingColor && attacker.name == PAWN) {
-            if ((kingColor && attacker.y - kingY == 1) || (!kingColor && kingY - attacker.y == 1)) {
+            if ((!kingColor && attacker.y - kingY == 1) || (kingColor && kingY - attacker.y == 1)) {
               attackers.push(attacker);
             }
           }
