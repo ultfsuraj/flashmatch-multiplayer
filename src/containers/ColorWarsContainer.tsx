@@ -3,7 +3,7 @@
 import DotSquare from ' @/components/DotSquare';
 import { resetGame } from ' @/redux/features/colorWarsSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
-import { HTMLMotionProps, motion } from 'motion/react';
+import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { COLORS, ICONS } from ' @/utils/constants';
 
@@ -56,19 +56,23 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
       </div>
 
       {/* grid */}
+      <AnimatePresence mode="popLayout">
+        {gameOpen && (
+          <div
+            className="grid w-[90%] gap-2 rounded-md bg-neutral-700 p-2 *:aspect-square"
+            style={{
+              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+              gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
+            }}
+          >
+            {cellItems.map((_, index) => (
+              <DotSquare key={index} id={index} />
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
 
-      <div
-        className="grid w-[90%] gap-1 rounded-md bg-neutral-700 p-1 *:aspect-square"
-        style={{
-          gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-          gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
-        }}
-      >
-        {cellItems.map((_, index) => (
-          <DotSquare key={index} id={index} />
-        ))}
-      </div>
-
+      <div></div>
       <div></div>
     </motion.div>
   );
