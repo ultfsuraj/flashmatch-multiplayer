@@ -5,7 +5,7 @@ import { resetGame } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { COLORS, ICONS } from ' @/utils/constants';
-import { HTMLMotionProps, motion } from 'motion/react';
+import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
 
@@ -53,33 +53,41 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         </motion.button>
       </div>
 
-      <section className="relative aspect-square w-[95%]">
-        <motion.div
-          className="absolute grid h-full w-full bg-neutral-700"
-          style={{
-            gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
-            gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
-          }}
-        >
-          {Array.from({ length: 64 }, (_, index) => (
+      <AnimatePresence mode="popLayout">
+        {gameOpen && (
+          <motion.div className="relative aspect-square w-[95%]">
             <div
-              key={index}
-              className={cn('h-full w-full', (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? colors[0] : colors[1])}
-            />
-          ))}
-        </motion.div>
-        <div
-          className="absolute grid h-full w-full bg-transparent"
-          style={{
-            gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
-            gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
-          }}
-        >
-          {pieceIDs.map((id) => (
-            <ChessPiece key={id} id={id} />
-          ))}
-        </div>
-      </section>
+              className="absolute grid h-full w-full bg-neutral-700"
+              style={{
+                gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: 64 }, (_, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    'h-full w-full',
+                    (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? colors[0] : colors[1]
+                  )}
+                />
+              ))}
+            </div>
+            <div
+              className="absolute grid h-full w-full bg-transparent"
+              style={{
+                gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
+              }}
+            >
+              {pieceIDs.map((id) => (
+                <ChessPiece key={id} id={id} />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div></div>
       <div></div>
     </motion.div>

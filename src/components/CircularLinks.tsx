@@ -127,7 +127,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       x: !open ? 2 * r - w : POSITIONS[id].x,
       y: !open ? 10 : POSITIONS[id].y,
       scale: !open ? 1 : POSITIONS[id].scale,
-      zIndex: !open ? POSITIONS.length + 50 : id + 2,
+      zIndex: !open ? POSITIONS.length + 50 : 0,
       borderRadius: !open ? '0%' : '50%',
       transition: { type: 'spring', duration: 0.3, bounce: 0 },
     });
@@ -211,13 +211,14 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
                     y: gameOpen && pos.id == gameId ? -(containerRef?.current?.getBoundingClientRect().top || 0) : 0,
                   }}
-                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2 }}
+                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2, delay: 0.05 }}
                   layout
                   index={index}
                   onClick={() => {
                     if (gameOpen) {
                       handleClick(pos.id);
                     }
+
                     setGameOpen(false);
                     setGameId(-1);
                   }}

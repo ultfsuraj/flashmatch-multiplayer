@@ -27,7 +27,7 @@ const initializeCells = (n: number, neutral: string) => {
 
 const initialState: gameState = {
   gameInfo: {
-    rows: 7,
+    rows: 6,
     turn: 1,
     neutralColor: 'bg-neutral-200',
     color1: 'bg-cyan-300',

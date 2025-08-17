@@ -19,7 +19,7 @@ const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivPr
     >
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
-          className="flex-center top-0 left-0 z-10 rounded-full bg-cover bg-no-repeat"
+          className="flex-center top-0 left-0 rounded-full bg-cover bg-no-repeat"
           initial={false}
           animate={{
             width: gameOpen ? '6vh' : iconHeight,
