@@ -1,6 +1,7 @@
 'use client';
 
 import ChessPiece from ' @/components/ChessPiece';
+import { useSocket } from ' @/containers/SocketProvider';
 import { resetGame } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
@@ -21,6 +22,22 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const dispatch = useAppDispatch();
+  const socket = useSocket()?.current;
+
+  useEffect(() => {
+    if (gameOpen) {
+      console.log('enter chess room');
+      socket?.emit('join', 'suraj', (res: { status: string }) => {
+        console.log(res.status);
+      });
+      socket?.on('welcome', (arg) => {
+        console.log(arg);
+      });
+    }
+    return () => {
+      console.log('exit chess room');
+    };
+  }, [gameOpen]);
 
   return (
     <motion.div
