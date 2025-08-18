@@ -11,7 +11,6 @@ const ChessPiece = ({ id }: { id: number }) => {
   const piece = useAppSelector((state) => state.chessState.pieces[id]);
   const moves = useAppSelector((state) => state.chessState.moves[id]);
   const dispatch = useAppDispatch();
-  const [focused, setFocused] = useState<boolean>(false);
 
   const { color, name, x, y, url } = piece || {};
 

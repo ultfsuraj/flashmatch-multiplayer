@@ -2,7 +2,7 @@
 
 import { motion, useAnimation } from 'motion/react';
 import { ComponentType, lazy, useEffect, useRef, useState } from 'react';
-import { COLORS } from ' @/utils/constants';
+import { GAMES } from ' @/utils/constants';
 import type { ColorWarsContainerProps } from ' @/containers/ColorWarsContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
@@ -168,7 +168,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
             y: circY(0),
           }}
         >
-          {COLORS[nameRef.current].name}
+          {GAMES[nameRef.current].name}
         </motion.div>
 
         {/* items */}
@@ -186,7 +186,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 x: pos.x,
                 y: pos.y,
                 scale: pos.scale,
-                backgroundImage: COLORS[pos.id].bgImage,
+                backgroundImage: GAMES[pos.id].bgImage,
                 borderRadius: '50%',
               }}
               animate={controlsARR.current[pos.id]}

@@ -1,7 +1,7 @@
 'use client';
 
 import { HTMLMotionProps, motion } from 'motion/react';
-import { COLORS, ICONS } from ' @/utils/constants';
+import { GAMES, ICONS } from ' @/utils/constants';
 
 export type NewGameContainerProps = {
   index: number;
@@ -14,7 +14,7 @@ const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivPr
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-900"
-      style={{ backgroundImage: COLORS[index].bgImage }}
+      style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">

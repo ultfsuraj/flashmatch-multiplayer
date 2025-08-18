@@ -5,7 +5,9 @@ import { useSocket } from ' @/containers/SocketProvider';
 import { resetGame } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
-import { COLORS, ICONS } from ' @/utils/constants';
+import { GAMES, ICONS } from ' @/utils/constants';
+import { joinRoom } from ' @/utils/wss';
+import { Events } from 'flashmatch-multiplayer-shared';
 import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
@@ -25,24 +27,25 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const socket = useSocket()?.current;
 
   useEffect(() => {
-    if (gameOpen) {
-      console.log('enter chess room');
-      socket?.emit('join', 'suraj', (res: { status: string }) => {
-        console.log(res.status);
+    if (gameOpen && socket) {
+      joinRoom(socket, 'joinRoom', {
+        gameName: GAMES[index].name,
+        roomid: 'Room Input',
+        playerName: `suraj ${Math.round(Math.random() * 100)}`,
       });
-      socket?.on('welcome', (arg) => {
-        console.log(arg);
+
+      const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
+      socket.on(playerJoined, (payload: Events['playerJoined']['payload']) => {
+        console.log('Player ' + payload.number + ' ' + payload.playerName + ' joined');
       });
     }
-    return () => {
-      console.log('exit chess room');
-    };
+    return () => {};
   }, [gameOpen]);
 
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
-      style={{ backgroundImage: COLORS[index].bgImage }}
+      style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">
@@ -58,7 +61,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           transition={MotionDivProps.transition}
           src={ICONS[index]}
         />
-        <h3 className="font-bangers font-semibold text-white">{COLORS[index].name}</h3>
+        <h3 className="font-bangers font-semibold text-white">{GAMES[index].name}</h3>
         <motion.button
           className="bg-black px-2 py-1 font-semibold text-white"
           onClick={() => {
