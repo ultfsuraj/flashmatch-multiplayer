@@ -15,7 +15,7 @@ export const joinRoom = (
       callback(res.order || 0);
     } else {
       // invalid move, or some error
-      console.log(" couldn't join " + payload.playerName + res.error);
+      console.log(" couldn't join " + payload.playerName + ' ' + res.error);
     }
   });
 };
@@ -24,6 +24,21 @@ export const broadcastMove = (
   socket: Socket,
   evtName: Events['makeMove']['name'],
   payload: Events['makeMove']['payload'],
+  callback?: (order?: number) => void
+) => {
+  socket.emit(evtName, payload, (res: Ack) => {
+    if (res.success) {
+      if (callback) callback(res.order || 0);
+    } else {
+      console.log(" couldn't send updated move, (update) should be reverted " + res.error);
+    }
+  });
+};
+
+export const exitRoom = (
+  socket: Socket,
+  evtName: Events['exitRoom']['name'],
+  payload: Events['exitRoom']['payload'],
   callback?: (order?: number) => void
 ) => {
   socket.emit(evtName, payload, (res: Ack) => {

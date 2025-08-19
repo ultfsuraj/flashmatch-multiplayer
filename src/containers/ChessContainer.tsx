@@ -6,7 +6,7 @@ import { resetGame, updateColor, updatePiece } from ' @/redux/features/chessSlic
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
-import { joinRoom } from ' @/utils/wss';
+import { exitRoom, joinRoom } from ' @/utils/wss';
 import { Events } from 'flashmatch-multiplayer-shared';
 import { AnimatePresence, easeInOut, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
@@ -23,41 +23,57 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   // const colors = ['bg-neutral-100', 'bg-neutral-500'];
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
   const [white, setWhite] = useState<boolean>(true);
+  const [joined, setJoined] = useState<boolean>(false);
+  const [playerName, setPlayerName] = useState<string>(`suraj ${Math.round(Math.random() * 10)}`);
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
 
+  const makeMove: Events['makeMove']['name'] = 'makeMove';
+  const makeMoveHandler = (payload: { id: number; x: number; y: number }) => {
+    dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y }));
+  };
+
+  const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
+  const playerJoinedHandler = (payload: Events['playerJoined']['payload']) => {
+    console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
+  };
+
   useEffect(() => {
+    const payload = {
+      gameName: GAMES[index].name,
+      roomid: 'Room Input2',
+      playerName: playerName,
+    };
+
     if (gameOpen && socket) {
-      joinRoom(
-        socket,
-        'joinRoom',
-        {
-          gameName: GAMES[index].name,
-          roomid: 'Room Input2',
-          playerName: `suraj ${Math.round(Math.random() * 10)}`,
-        },
-        (order: number) => {
+      if (!joined) {
+        joinRoom(socket, 'joinRoom', payload, (order: number) => {
           if (order == 2) {
             setWhite(false);
             dispatch(updateColor(false));
           }
-        }
-      );
-      const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
-      socket.on(playerJoined, (payload: Events['playerJoined']['payload']) => {
-        console.log('Player ' + payload.number + ' ' + payload.playerName + ' joined');
-      });
-
-      const makeMove: Events['makeMove']['name'] = 'makeMove';
-      socket.on(makeMove, (payload: { id: number; x: number; y: number }) => {
-        dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y }));
-      });
+          setJoined(true);
+        });
+      } else {
+        socket.on(playerJoined, playerJoinedHandler);
+        socket.on(makeMove, makeMoveHandler);
+      }
     }
     return () => {
-      // exit room
+      if (!socket) return;
+      if (gameOpen && joined) {
+        console.log('game closed');
+        const exit: Events['exitRoom']['name'] = 'exitRoom';
+        exitRoom(socket, exit, payload);
+        setJoined(false);
+        setWhite(true);
+        dispatch(updateColor(true));
+      }
+      socket.off(playerJoined, playerJoinedHandler);
+      socket.off(playerJoined, playerJoinedHandler);
     };
-  }, [gameOpen]);
+  }, [gameOpen, joined]);
 
   return (
     <motion.div

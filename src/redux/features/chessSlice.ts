@@ -54,7 +54,9 @@ export const chessSlice = createSlice({
       action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
     ) => {
       const { id, x, y } = action.payload;
+      console.log('piece id ', id);
       if (state.pieceIDs.filter((pieceID) => pieceID == id).length == 0) return;
+      console.log(state.pieces[id].color ? 'white' : 'black' + ' moved');
       const newState = makeMove(id, x, y, state.pieces, [...state.pieceIDs]);
       state.pieceIDs = newState.pieceIDs;
       state.pieces = newState.pieces;
