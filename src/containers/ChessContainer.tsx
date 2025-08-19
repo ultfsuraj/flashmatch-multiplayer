@@ -22,26 +22,30 @@ export type ChessContainerProps = {
 const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
   // const colors = ['bg-neutral-100', 'bg-neutral-500'];
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
-  const [white, setWhite] = useState<boolean>(false);
+  const [white, setWhite] = useState<boolean>(true);
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
 
   useEffect(() => {
     if (gameOpen && socket) {
-      joinRoom(socket, 'joinRoom', {
-        gameName: GAMES[index].name,
-        roomid: 'Room Input',
-        playerName: `suraj ${Math.round(Math.random() * 100)}`,
-      });
-
+      joinRoom(
+        socket,
+        'joinRoom',
+        {
+          gameName: GAMES[index].name,
+          roomid: 'Room Input2',
+          playerName: `suraj ${Math.round(Math.random() * 10)}`,
+        },
+        (order: number) => {
+          if (order == 2) setWhite(false);
+        }
+      );
       const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
       socket.on(playerJoined, (payload: Events['playerJoined']['payload']) => {
         console.log('Player ' + payload.number + ' ' + payload.playerName + ' joined');
-        setWhite(true);
       });
     }
-    return () => {};
   }, [gameOpen]);
 
   return (
