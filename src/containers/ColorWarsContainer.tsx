@@ -5,7 +5,7 @@ import { resetGame } from ' @/redux/features/colorWarsSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { COLORS, ICONS } from ' @/utils/constants';
+import { GAMES, ICONS } from ' @/utils/constants';
 
 export type ColorWarsContainerProps = {
   index: number;
@@ -26,7 +26,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
-      style={{ backgroundImage: COLORS[index].bgImage }}
+      style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">
@@ -43,7 +43,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           transition={MotionDivProps.transition}
           src={ICONS[index]}
         />
-        <h3 className="font-bangers font-semibold text-white">{COLORS[index].name}</h3>
+        <h3 className="font-bangers font-semibold text-white">{GAMES[index].name}</h3>
         <button
           className="bg-black px-2 py-1 font-semibold text-white"
           onClick={() => {

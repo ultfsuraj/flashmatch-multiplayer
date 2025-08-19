@@ -1,11 +1,14 @@
 'use client';
 
 import ChessPiece from ' @/components/ChessPiece';
-import { resetGame } from ' @/redux/features/chessSlice';
+import { useSocket } from ' @/containers/SocketProvider';
+import { resetGame, updateColor, updatePiece } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
-import { COLORS, ICONS } from ' @/utils/constants';
-import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
+import { GAMES, ICONS } from ' @/utils/constants';
+import { exitRoom, joinRoom } from ' @/utils/wss';
+import { Events } from 'flashmatch-multiplayer-shared';
+import { AnimatePresence, easeInOut, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
 
@@ -19,13 +22,63 @@ export type ChessContainerProps = {
 const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
   // const colors = ['bg-neutral-100', 'bg-neutral-500'];
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
+  const [white, setWhite] = useState<boolean>(true);
+  const [joined, setJoined] = useState<boolean>(false);
+  const [playerName, setPlayerName] = useState<string>(`suraj ${Math.round(Math.random() * 10)}`);
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const dispatch = useAppDispatch();
+  const socket = useSocket()?.current;
+
+  const makeMove: Events['makeMove']['name'] = 'makeMove';
+  const makeMoveHandler = (payload: { id: number; x: number; y: number }) => {
+    dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y }));
+  };
+
+  const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
+  const playerJoinedHandler = (payload: Events['playerJoined']['payload']) => {
+    console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
+  };
+
+  useEffect(() => {
+    const payload = {
+      gameName: GAMES[index].name,
+      roomid: 'Room Input2',
+      playerName: playerName,
+    };
+
+    if (gameOpen && socket) {
+      if (!joined) {
+        joinRoom(socket, 'joinRoom', payload, (order: number) => {
+          if (order == 2) {
+            setWhite(false);
+            dispatch(updateColor(false));
+          }
+          setJoined(true);
+        });
+      } else {
+        socket.on(playerJoined, playerJoinedHandler);
+        socket.on(makeMove, makeMoveHandler);
+      }
+    }
+    return () => {
+      if (!socket) return;
+      if (gameOpen && joined) {
+        console.log('game closed');
+        const exit: Events['exitRoom']['name'] = 'exitRoom';
+        exitRoom(socket, exit, payload);
+        setJoined(false);
+        setWhite(true);
+        dispatch(updateColor(true));
+      }
+      socket.off(playerJoined, playerJoinedHandler);
+      socket.off(playerJoined, playerJoinedHandler);
+    };
+  }, [gameOpen, joined]);
 
   return (
     <motion.div
       className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
-      style={{ backgroundImage: COLORS[index].bgImage }}
+      style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">
@@ -41,7 +94,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           transition={MotionDivProps.transition}
           src={ICONS[index]}
         />
-        <h3 className="font-bangers font-semibold text-white">{COLORS[index].name}</h3>
+        <h3 className="font-bangers font-semibold text-white">{GAMES[index].name}</h3>
         <motion.button
           className="bg-black px-2 py-1 font-semibold text-white"
           onClick={() => {
@@ -55,7 +108,11 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
 
       <AnimatePresence mode="popLayout">
         {gameOpen && (
-          <motion.div className="relative aspect-square w-[95%]">
+          <motion.div
+            className="relative aspect-square w-[95%]"
+            animate={{ rotate: white ? 0 : 180 }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+          >
             <div
               className="absolute grid h-full w-full bg-neutral-700"
               style={{
@@ -81,7 +138,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
               }}
             >
               {pieceIDs.map((id) => (
-                <ChessPiece key={id} id={id} />
+                <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} />
               ))}
             </div>
           </motion.div>
