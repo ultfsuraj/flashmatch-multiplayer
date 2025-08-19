@@ -23,6 +23,7 @@ export type pieceType = {
 type gameState = {
   gameInfo: {
     turn: number;
+    color: boolean;
   };
   cells: Record<number, cellType>;
   pieces: Record<number, pieceType>;
@@ -33,6 +34,7 @@ type gameState = {
 const initialState: gameState = {
   gameInfo: {
     turn: 1,
+    color: true,
   },
   cells: generateCells(),
   pieces: generatePieces(),
@@ -44,6 +46,9 @@ export const chessSlice = createSlice({
   name: 'chess',
   initialState,
   reducers: {
+    updateColor: (state, action: PayloadAction<boolean>) => {
+      state.gameInfo.color = action.payload;
+    },
     updatePiece: (
       state,
       action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
@@ -62,7 +67,8 @@ export const chessSlice = createSlice({
       const id = action.payload;
       let moves: point[] = [];
       const { x, y, color, name } = state.pieces[id];
-      if ((state.gameInfo.turn % 2 == 1) != color) return;
+      if (state.gameInfo.color != color || (state.gameInfo.turn % 2 == 1) != color) return;
+
       for (let i = 0; i < 32; i++) {
         state.moves[i].show = false;
       }
@@ -130,6 +136,7 @@ export const chessSlice = createSlice({
       const resetState: gameState = {
         gameInfo: {
           turn: 1,
+          color: state.gameInfo.color,
         },
         cells: generateCells(),
         pieces: generatePieces(),
@@ -145,7 +152,7 @@ export const chessSlice = createSlice({
   },
 });
 
-export const { updatePiece, getMoves, resetGame } = chessSlice.actions;
+export const { updateColor, updatePiece, getMoves, resetGame } = chessSlice.actions;
 export default chessSlice.reducer;
 
 function generateCells() {

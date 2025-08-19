@@ -2,7 +2,7 @@
 
 import ChessPiece from ' @/components/ChessPiece';
 import { useSocket } from ' @/containers/SocketProvider';
-import { resetGame } from ' @/redux/features/chessSlice';
+import { resetGame, updateColor } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
@@ -38,7 +38,10 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           playerName: `suraj ${Math.round(Math.random() * 10)}`,
         },
         (order: number) => {
-          if (order == 2) setWhite(false);
+          if (order == 2) {
+            setWhite(false);
+            dispatch(updateColor(false));
+          }
         }
       );
       const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
