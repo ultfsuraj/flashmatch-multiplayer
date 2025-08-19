@@ -23,11 +23,7 @@ export type pieceType = {
 type gameState = {
   gameInfo: {
     turn: number;
-  };
-  checked: {
-    king: boolean;
     color: boolean;
-    attackers: pieceType[];
   };
   cells: Record<number, cellType>;
   pieces: Record<number, pieceType>;
@@ -38,11 +34,7 @@ type gameState = {
 const initialState: gameState = {
   gameInfo: {
     turn: 1,
-  },
-  checked: {
-    king: false,
-    color: false,
-    attackers: [],
+    color: true,
   },
   cells: generateCells(),
   pieces: generatePieces(),
@@ -54,11 +46,17 @@ export const chessSlice = createSlice({
   name: 'chess',
   initialState,
   reducers: {
+    updateColor: (state, action: PayloadAction<boolean>) => {
+      state.gameInfo.color = action.payload;
+    },
     updatePiece: (
       state,
       action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
     ) => {
       const { id, x, y } = action.payload;
+      console.log('piece id ', id);
+      if (state.pieceIDs.filter((pieceID) => pieceID == id).length == 0) return;
+      console.log(state.pieces[id].color ? 'white' : 'black' + ' moved');
       const newState = makeMove(id, x, y, state.pieces, [...state.pieceIDs]);
       state.pieceIDs = newState.pieceIDs;
       state.pieces = newState.pieces;
@@ -71,8 +69,10 @@ export const chessSlice = createSlice({
     getMoves: (state, action: PayloadAction<number>) => {
       const id = action.payload;
       let moves: point[] = [];
+      if (state.pieceIDs.filter((pieceID) => pieceID == id).length == 0) return;
       const { x, y, color, name } = state.pieces[id];
-      if ((state.gameInfo.turn % 2 == 1) != color) return;
+      if (state.gameInfo.color != color || (state.gameInfo.turn % 2 == 1) != color) return;
+
       for (let i = 0; i < 32; i++) {
         state.moves[i].show = false;
       }
@@ -80,47 +80,47 @@ export const chessSlice = createSlice({
         state.moves[id].show = true;
         return;
       }
+
       const piecesValues = Object.values(state.pieces);
-      if (state.checked)
-        switch (name) {
-          case PAWN:
-            moves = getPawnMoves(piecesValues, color, x, y);
-            break;
-          case BISHOP:
-            moves = getStarMoves(piecesValues, color, x, y, [
-              { x: 1, y: 1 },
-              { x: 1, y: -1 },
-              { x: -1, y: 1 },
-              { x: -1, y: -1 },
-            ]);
-            break;
-          case ROOK:
-            moves = getStarMoves(piecesValues, color, x, y, [
-              { x: 0, y: 1 },
-              { x: 0, y: -1 },
-              { x: -1, y: 0 },
-              { x: 1, y: 0 },
-            ]);
-            break;
-          case QUEEN:
-            moves = getStarMoves(piecesValues, color, x, y, [
-              { x: 0, y: 1 },
-              { x: 0, y: -1 },
-              { x: -1, y: 0 },
-              { x: 1, y: 0 },
-              { x: 1, y: 1 },
-              { x: 1, y: -1 },
-              { x: -1, y: 1 },
-              { x: -1, y: -1 },
-            ]);
-            break;
-          case KNIGHT:
-            moves = getKnightMoves(piecesValues, color, x, y);
-            break;
-          case KING:
-            moves = getKingMoves(piecesValues, color, x, y);
-            break;
-        }
+      switch (name) {
+        case PAWN:
+          moves = getPawnMoves(piecesValues, color, x, y);
+          break;
+        case BISHOP:
+          moves = getStarMoves(piecesValues, color, x, y, [
+            { x: 1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: 1 },
+            { x: -1, y: -1 },
+          ]);
+          break;
+        case ROOK:
+          moves = getStarMoves(piecesValues, color, x, y, [
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+          ]);
+          break;
+        case QUEEN:
+          moves = getStarMoves(piecesValues, color, x, y, [
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: 1 },
+            { x: -1, y: -1 },
+          ]);
+          break;
+        case KNIGHT:
+          moves = getKnightMoves(piecesValues, color, x, y);
+          break;
+        case KING:
+          moves = getKingMoves(piecesValues, color, x, y);
+          break;
+      }
       // moving this will put check on king ?
       moves = moves.filter((move) => {
         let include = true;
@@ -136,26 +136,11 @@ export const chessSlice = createSlice({
       state.moves[id].points = moves;
       state.moves[id].show = true;
     },
-    updateAttackers: (state, action: PayloadAction<boolean>) => {
-      const attackers: pieceType[] = getKingAttackers(Object.values(state.pieces), action.payload);
-      if (attackers.length > 0) {
-        state.checked.king = true;
-        state.checked.color = action.payload;
-        state.checked.attackers = attackers;
-      } else {
-        state.checked.king = false;
-        state.checked.attackers = [];
-      }
-    },
     resetGame: (state) => {
       const resetState: gameState = {
         gameInfo: {
           turn: 1,
-        },
-        checked: {
-          king: false,
-          color: false,
-          attackers: [],
+          color: state.gameInfo.color,
         },
         cells: generateCells(),
         pieces: generatePieces(),
@@ -163,7 +148,6 @@ export const chessSlice = createSlice({
         moves: generateMoves(),
       };
       state.gameInfo = resetState.gameInfo;
-      state.checked = resetState.checked;
       state.cells = resetState.cells;
       state.pieces = resetState.pieces;
       state.pieceIDs = resetState.pieceIDs;
@@ -172,7 +156,7 @@ export const chessSlice = createSlice({
   },
 });
 
-export const { updatePiece, getMoves, resetGame, updateAttackers } = chessSlice.actions;
+export const { updateColor, updatePiece, getMoves, resetGame } = chessSlice.actions;
 export default chessSlice.reducer;
 
 function generateCells() {

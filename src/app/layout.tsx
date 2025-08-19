@@ -3,6 +3,7 @@ import { Montserrat, Bangers } from 'next/font/google';
 import './globals.css';
 
 import { Providers } from ' @/redux/Providers';
+import SocketProvider from ' @/containers/SocketProvider';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -28,9 +29,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Providers>
-        <body className={`${montserrat.variable} ${bangers.variable} overflow-hidden antialiased`}>{children}</body>
-      </Providers>
+      <SocketProvider url="http://localhost:3001" key="socket">
+        <Providers key="redux">
+          <body className={`${montserrat.variable} ${bangers.variable} overflow-hidden antialiased`}>{children}</body>
+        </Providers>
+      </SocketProvider>
     </html>
   );
 }

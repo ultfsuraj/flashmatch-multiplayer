@@ -1,3 +1,5 @@
+import { Games } from 'flashmatch-multiplayer-shared';
+
 export const seoText1: string = `Experience the thrill of multiplayer gaming with your friends in real-time! Whether you’re strategizing in
           classic online chess matches or competing in fast-paced color wars, playing ludo, our platform offers seamless
           and engaging 2-player online games designed for endless fun. Connect instantly, challenge your friends, and
@@ -21,18 +23,18 @@ export const ICONS: string[] = [
   'https://www.svgrepo.com/show/521386/kissing-face.svg',
 ];
 
-export const COLORS: Array<{ name: string; bgImage: string }> = [
-  { name: 'Discover', bgImage: 'linear-gradient(45deg, #874da2 0%, #c43a30 100%)' },
-  { name: 'Discover', bgImage: 'linear-gradient(120deg, #000000 0%, #7ED6DF 100%)' },
+export const GAMES: Array<{ name: keyof typeof Games; bgImage: string }> = [
+  { name: 'ludo', bgImage: 'linear-gradient(45deg, #874da2 0%, #c43a30 100%)' },
+  { name: 'ludo', bgImage: 'linear-gradient(120deg, #000000 0%, #7ED6DF 100%)' },
   {
-    name: 'Discover',
+    name: 'ludo',
     bgImage: 'linear-gradient(-225deg, #231557 0%, #44107A 29%, #FF1361 67%, #FFF800 100%)',
   },
-  { name: 'Discover', bgImage: 'linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)' },
-  { name: 'Discover', bgImage: 'linear-gradient(135deg, #000000 0%, #166D3B 100%)' },
-  { name: 'Chess', bgImage: 'linear-gradient(130deg, #232526 0%, #1e3c72 100%)' },
-  { name: 'Discover', bgImage: 'linear-gradient(135deg, #000000 0%, #E84393 100%)' },
-  { name: 'Color Wars', bgImage: 'linear-gradient(to right, #243949 0%, #517fa4 100%)' },
+  { name: 'ludo', bgImage: 'linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)' },
+  { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #166D3B 100%)' },
+  { name: 'chess', bgImage: 'linear-gradient(130deg, #232526 0%, #1e3c72 100%)' },
+  { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #E84393 100%)' },
+  { name: 'colorWars', bgImage: 'linear-gradient(to right, #243949 0%, #517fa4 100%)' },
 ];
 
 export const BLACK_PIECES: Record<string, string> = {

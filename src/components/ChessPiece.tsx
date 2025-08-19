@@ -1,17 +1,20 @@
 'use client';
 
-import { getMoves, updateAttackers, updatePiece } from ' @/redux/features/chessSlice';
+import { useSocket } from ' @/containers/SocketProvider';
+import { getMoves, updatePiece } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
-import { motion } from 'motion/react';
+import { broadcastMove } from ' @/utils/wss';
+import { HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
-import { useState } from 'react';
 
-const ChessPiece = ({ id }: { id: number }) => {
-  const piece = useAppSelector((state) => state.chessState.pieces[id]);
-  const moves = useAppSelector((state) => state.chessState.moves[id]);
+type ChessPieceProps = { pieceId: number } & HTMLMotionProps<'div'>;
+
+const ChessPiece = ({ pieceId, ...MotionDivProps }: ChessPieceProps) => {
+  const piece = useAppSelector((state) => state.chessState.pieces[pieceId]);
+  const moves = useAppSelector((state) => state.chessState.moves[pieceId]);
   const dispatch = useAppDispatch();
-  const [focused, setFocused] = useState<boolean>(false);
+  const socket = useSocket()?.current;
 
   const { color, name, x, y, url } = piece || {};
 
@@ -21,11 +24,9 @@ const ChessPiece = ({ id }: { id: number }) => {
         className="h-full w-full p-1"
         layout
         style={{ gridRowStart: y, gridColumnStart: x }}
+        {...MotionDivProps}
         onClick={() => {
-          dispatch(getMoves(id));
-          // Promise.resolve().then(() => {
-          //   dispatch(updateAttackers(!piece.color));
-          // });
+          dispatch(getMoves(pieceId));
         }}
       >
         <Image
@@ -44,6 +45,12 @@ const ChessPiece = ({ id }: { id: number }) => {
             style={{ gridRowStart: y, gridColumnStart: x }}
             onClick={() => {
               dispatch(updatePiece({ ...piece, x, y }));
+              // broadcast move, what payload is sent, that will be received, (full client side control)
+              if (socket) {
+                broadcastMove(socket, 'makeMove', { ...piece, x, y });
+              } else {
+                console.log("no socket connection, move didn't reach opponent");
+              }
             }}
           >
             <div className="h-[25%] w-[25%] rounded-full border border-amber-800 bg-amber-100 opacity-90"></div>
