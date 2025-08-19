@@ -19,3 +19,18 @@ export const joinRoom = (
     }
   });
 };
+
+export const broadcastMove = (
+  socket: Socket,
+  evtName: Events['makeMove']['name'],
+  payload: Events['makeMove']['payload'],
+  callback?: (order?: number) => void
+) => {
+  socket.emit(evtName, payload, (res: Ack) => {
+    if (res.success) {
+      if (callback) callback(res.order || 0);
+    } else {
+      console.log(" couldn't send updated move, (update) should be reverted " + res.error);
+    }
+  });
+};

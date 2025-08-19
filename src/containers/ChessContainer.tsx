@@ -2,7 +2,7 @@
 
 import ChessPiece from ' @/components/ChessPiece';
 import { useSocket } from ' @/containers/SocketProvider';
-import { resetGame, updateColor } from ' @/redux/features/chessSlice';
+import { resetGame, updateColor, updatePiece } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
@@ -48,7 +48,15 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       socket.on(playerJoined, (payload: Events['playerJoined']['payload']) => {
         console.log('Player ' + payload.number + ' ' + payload.playerName + ' joined');
       });
+
+      const makeMove: Events['makeMove']['name'] = 'makeMove';
+      socket.on(makeMove, (payload: { id: number; x: number; y: number }) => {
+        dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y }));
+      });
     }
+    return () => {
+      // exit room
+    };
   }, [gameOpen]);
 
   return (

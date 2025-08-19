@@ -54,6 +54,7 @@ export const chessSlice = createSlice({
       action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
     ) => {
       const { id, x, y } = action.payload;
+      if (state.pieceIDs.filter((pieceID) => pieceID == id).length == 0) return;
       const newState = makeMove(id, x, y, state.pieces, [...state.pieceIDs]);
       state.pieceIDs = newState.pieceIDs;
       state.pieces = newState.pieces;
@@ -66,6 +67,7 @@ export const chessSlice = createSlice({
     getMoves: (state, action: PayloadAction<number>) => {
       const id = action.payload;
       let moves: point[] = [];
+      if (state.pieceIDs.filter((pieceID) => pieceID == id).length == 0) return;
       const { x, y, color, name } = state.pieces[id];
       if (state.gameInfo.color != color || (state.gameInfo.turn % 2 == 1) != color) return;
 
