@@ -8,7 +8,7 @@ import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
 import { joinRoom } from ' @/utils/wss';
 import { Events } from 'flashmatch-multiplayer-shared';
-import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
+import { AnimatePresence, easeInOut, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
 
@@ -22,6 +22,7 @@ export type ChessContainerProps = {
 const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
   // const colors = ['bg-neutral-100', 'bg-neutral-500'];
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
+  const [white, setWhite] = useState<boolean>(false);
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
@@ -37,6 +38,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
       socket.on(playerJoined, (payload: Events['playerJoined']['payload']) => {
         console.log('Player ' + payload.number + ' ' + payload.playerName + ' joined');
+        setWhite(true);
       });
     }
     return () => {};
@@ -75,7 +77,11 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
 
       <AnimatePresence mode="popLayout">
         {gameOpen && (
-          <motion.div className="relative aspect-square w-[95%]">
+          <motion.div
+            className="relative aspect-square w-[95%]"
+            animate={{ rotate: white ? 0 : 180 }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+          >
             <div
               className="absolute grid h-full w-full bg-neutral-700"
               style={{
@@ -101,7 +107,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
               }}
             >
               {pieceIDs.map((id) => (
-                <ChessPiece key={id} id={id} />
+                <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} />
               ))}
             </div>
           </motion.div>

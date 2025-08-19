@@ -1,15 +1,16 @@
 'use client';
 
-import { getMoves, updateAttackers, updatePiece } from ' @/redux/features/chessSlice';
+import { getMoves, updatePiece } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
-import { motion } from 'motion/react';
+import { HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
-import { useState } from 'react';
 
-const ChessPiece = ({ id }: { id: number }) => {
-  const piece = useAppSelector((state) => state.chessState.pieces[id]);
-  const moves = useAppSelector((state) => state.chessState.moves[id]);
+type ChessPieceProps = { pieceId: number } & HTMLMotionProps<'div'>;
+
+const ChessPiece = ({ pieceId, ...MotionDivProps }: ChessPieceProps) => {
+  const piece = useAppSelector((state) => state.chessState.pieces[pieceId]);
+  const moves = useAppSelector((state) => state.chessState.moves[pieceId]);
   const dispatch = useAppDispatch();
 
   const { color, name, x, y, url } = piece || {};
@@ -20,11 +21,13 @@ const ChessPiece = ({ id }: { id: number }) => {
         className="h-full w-full p-1"
         layout
         style={{ gridRowStart: y, gridColumnStart: x }}
+        {...MotionDivProps}
         onClick={() => {
-          dispatch(getMoves(id));
-          // Promise.resolve().then(() => {
-          //   dispatch(updateAttackers(!piece.color));
-          // });
+          dispatch(getMoves(pieceId));
+          Promise.resolve().then(() => {
+            // dispatch();
+            // socket emit game update
+          });
         }}
       >
         <Image

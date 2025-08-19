@@ -24,11 +24,6 @@ type gameState = {
   gameInfo: {
     turn: number;
   };
-  checked: {
-    king: boolean;
-    color: boolean;
-    attackers: pieceType[];
-  };
   cells: Record<number, cellType>;
   pieces: Record<number, pieceType>;
   pieceIDs: number[];
@@ -38,11 +33,6 @@ type gameState = {
 const initialState: gameState = {
   gameInfo: {
     turn: 1,
-  },
-  checked: {
-    king: false,
-    color: false,
-    attackers: [],
   },
   cells: generateCells(),
   pieces: generatePieces(),
@@ -80,47 +70,47 @@ export const chessSlice = createSlice({
         state.moves[id].show = true;
         return;
       }
+
       const piecesValues = Object.values(state.pieces);
-      if (state.checked)
-        switch (name) {
-          case PAWN:
-            moves = getPawnMoves(piecesValues, color, x, y);
-            break;
-          case BISHOP:
-            moves = getStarMoves(piecesValues, color, x, y, [
-              { x: 1, y: 1 },
-              { x: 1, y: -1 },
-              { x: -1, y: 1 },
-              { x: -1, y: -1 },
-            ]);
-            break;
-          case ROOK:
-            moves = getStarMoves(piecesValues, color, x, y, [
-              { x: 0, y: 1 },
-              { x: 0, y: -1 },
-              { x: -1, y: 0 },
-              { x: 1, y: 0 },
-            ]);
-            break;
-          case QUEEN:
-            moves = getStarMoves(piecesValues, color, x, y, [
-              { x: 0, y: 1 },
-              { x: 0, y: -1 },
-              { x: -1, y: 0 },
-              { x: 1, y: 0 },
-              { x: 1, y: 1 },
-              { x: 1, y: -1 },
-              { x: -1, y: 1 },
-              { x: -1, y: -1 },
-            ]);
-            break;
-          case KNIGHT:
-            moves = getKnightMoves(piecesValues, color, x, y);
-            break;
-          case KING:
-            moves = getKingMoves(piecesValues, color, x, y);
-            break;
-        }
+      switch (name) {
+        case PAWN:
+          moves = getPawnMoves(piecesValues, color, x, y);
+          break;
+        case BISHOP:
+          moves = getStarMoves(piecesValues, color, x, y, [
+            { x: 1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: 1 },
+            { x: -1, y: -1 },
+          ]);
+          break;
+        case ROOK:
+          moves = getStarMoves(piecesValues, color, x, y, [
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+          ]);
+          break;
+        case QUEEN:
+          moves = getStarMoves(piecesValues, color, x, y, [
+            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 1, y: -1 },
+            { x: -1, y: 1 },
+            { x: -1, y: -1 },
+          ]);
+          break;
+        case KNIGHT:
+          moves = getKnightMoves(piecesValues, color, x, y);
+          break;
+        case KING:
+          moves = getKingMoves(piecesValues, color, x, y);
+          break;
+      }
       // moving this will put check on king ?
       moves = moves.filter((move) => {
         let include = true;
@@ -136,26 +126,10 @@ export const chessSlice = createSlice({
       state.moves[id].points = moves;
       state.moves[id].show = true;
     },
-    updateAttackers: (state, action: PayloadAction<boolean>) => {
-      const attackers: pieceType[] = getKingAttackers(Object.values(state.pieces), action.payload);
-      if (attackers.length > 0) {
-        state.checked.king = true;
-        state.checked.color = action.payload;
-        state.checked.attackers = attackers;
-      } else {
-        state.checked.king = false;
-        state.checked.attackers = [];
-      }
-    },
     resetGame: (state) => {
       const resetState: gameState = {
         gameInfo: {
           turn: 1,
-        },
-        checked: {
-          king: false,
-          color: false,
-          attackers: [],
         },
         cells: generateCells(),
         pieces: generatePieces(),
@@ -163,7 +137,6 @@ export const chessSlice = createSlice({
         moves: generateMoves(),
       };
       state.gameInfo = resetState.gameInfo;
-      state.checked = resetState.checked;
       state.cells = resetState.cells;
       state.pieces = resetState.pieces;
       state.pieceIDs = resetState.pieceIDs;
@@ -172,7 +145,7 @@ export const chessSlice = createSlice({
   },
 });
 
-export const { updatePiece, getMoves, resetGame, updateAttackers } = chessSlice.actions;
+export const { updatePiece, getMoves, resetGame } = chessSlice.actions;
 export default chessSlice.reducer;
 
 function generateCells() {
