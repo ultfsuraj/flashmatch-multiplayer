@@ -35,6 +35,21 @@ export const broadcastMove = (
   });
 };
 
+export const broadcastGameState = (
+  socket: Socket,
+  evtName: Events['syncGameState']['name'],
+  payload: Events['syncGameState']['payload'],
+  callback?: (order?: number) => void
+) => {
+  socket.emit(evtName, payload, (res: Ack) => {
+    if (res.success) {
+      if (callback) callback(res.order || 0);
+    } else {
+      console.log("Couldn't send gamestate for sync");
+    }
+  });
+};
+
 export const exitRoom = (
   socket: Socket,
   evtName: Events['exitRoom']['name'],

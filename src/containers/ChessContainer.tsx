@@ -2,15 +2,15 @@
 
 import ChessPiece from ' @/components/ChessPiece';
 import { useSocket } from ' @/containers/SocketProvider';
-import { resetGame, updateColor, updatePiece } from ' @/redux/features/chessSlice';
+import { pieceType, resetGame, syncGame, updateColor, updatePiece } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
-import { exitRoom, joinRoom } from ' @/utils/wss';
+import { broadcastGameState, exitRoom, joinRoom } from ' @/utils/wss';
 import { Events } from 'flashmatch-multiplayer-shared';
 import { AnimatePresence, easeInOut, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 export type ChessContainerProps = {
   index: number;
@@ -26,18 +26,39 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const [joined, setJoined] = useState<boolean>(false);
   const [playerName, setPlayerName] = useState<string>(`suraj ${Math.round(Math.random() * 10)}`);
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
+  const pieces = useAppSelector((state) => state.chessState.pieces);
+  const lastUpdated = useAppSelector((state) => state.chessState.gameInfo.lastUpdated);
+  const turn = useAppSelector((state) => state.chessState.gameInfo.turn);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
 
   const makeMove: Events['makeMove']['name'] = 'makeMove';
-  const makeMoveHandler = (payload: { id: number; x: number; y: number }) => {
+  const makeMoveHandler = useCallback((payload: { id: number; x: number; y: number } & object) => {
     dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y }));
-  };
+  }, []);
 
   const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
-  const playerJoinedHandler = (payload: Events['playerJoined']['payload']) => {
+  const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
-  };
+    if (!socket) return;
+    const prevState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{}');
+    console.log('broadcasting pieces on player join', pieceIDs.length);
+    if (prevState && prevState.lastUpdated) broadcastGameState(socket, 'syncGameState', prevState);
+  }, []);
+
+  const syncGameState: Events['syncGameState']['name'] = 'syncGameState';
+  const syncGameHandler = useCallback(
+    (
+      payload: Events['syncGameState']['payload'] & {
+        state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+      }
+    ) => {
+      if (lastUpdated < payload.lastUpdated) {
+        dispatch(syncGame(payload));
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const payload = {
@@ -56,8 +77,14 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           setJoined(true);
         });
       } else {
+        const payload = JSON.parse(localStorage.getItem(GAMES[index].name) || '{}');
+        if (payload && payload.lastUpdated) {
+          broadcastGameState(socket, 'syncGameState', payload);
+          dispatch(syncGame(payload));
+        }
         socket.on(playerJoined, playerJoinedHandler);
         socket.on(makeMove, makeMoveHandler);
+        socket.on(syncGameState, syncGameHandler);
       }
     }
     return () => {
@@ -70,8 +97,9 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         setWhite(true);
         dispatch(updateColor(true));
       }
+      socket.off(makeMove, makeMoveHandler);
       socket.off(playerJoined, playerJoinedHandler);
-      socket.off(playerJoined, playerJoinedHandler);
+      socket.off(syncGameState, syncGameHandler);
     };
   }, [gameOpen, joined]);
 

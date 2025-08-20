@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 import { BLACK_PIECES, WHITE_PIECES } from ' @/utils/constants';
+import { Events, Games } from 'flashmatch-multiplayer-shared';
 
 export const PAWN = 'pawn';
 export const ROOK = 'rook';
@@ -24,6 +25,7 @@ type gameState = {
   gameInfo: {
     turn: number;
     color: boolean;
+    lastUpdated: number;
   };
   cells: Record<number, cellType>;
   pieces: Record<number, pieceType>;
@@ -35,6 +37,7 @@ const initialState: gameState = {
   gameInfo: {
     turn: 1,
     color: true,
+    lastUpdated: 0,
   },
   cells: generateCells(),
   pieces: generatePieces(),
@@ -62,9 +65,22 @@ export const chessSlice = createSlice({
       state.pieces = newState.pieces;
       state.gameInfo.turn += 1;
       state.moves = generateMoves();
+      state.gameInfo.lastUpdated = Date.now();
       // check ?
       // checkmate ?
       // we'll see that on next color's move
+      const gameName: keyof typeof Games = 'chess';
+      const gameState: Events['syncGameState']['payload'] & {
+        state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+      } = {
+        lastUpdated: state.gameInfo.lastUpdated,
+        state: {
+          turn: state.gameInfo.turn,
+          pieces: newState.pieces,
+          pieceIDs: newState.pieceIDs,
+        },
+      };
+      localStorage.setItem(gameName, JSON.stringify(gameState));
     },
     getMoves: (state, action: PayloadAction<number>) => {
       const id = action.payload;
@@ -136,11 +152,29 @@ export const chessSlice = createSlice({
       state.moves[id].points = moves;
       state.moves[id].show = true;
     },
+    syncGame: (
+      state,
+      action: PayloadAction<
+        Events['syncGameState']['payload'] & {
+          state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+        }
+      >
+    ) => {
+      console.log('current state time ', state.gameInfo.lastUpdated);
+      console.log('received sync ', action.payload);
+      const lastUpdated = action.payload.lastUpdated;
+      const { turn, pieceIDs, pieces } = action.payload.state;
+      state.gameInfo.lastUpdated = lastUpdated;
+      state.gameInfo.turn = turn;
+      state.pieceIDs = pieceIDs;
+      state.pieces = pieces;
+    },
     resetGame: (state) => {
       const resetState: gameState = {
         gameInfo: {
           turn: 1,
           color: state.gameInfo.color,
+          lastUpdated: state.gameInfo.lastUpdated,
         },
         cells: generateCells(),
         pieces: generatePieces(),
@@ -156,7 +190,7 @@ export const chessSlice = createSlice({
   },
 });
 
-export const { updateColor, updatePiece, getMoves, resetGame } = chessSlice.actions;
+export const { updateColor, updatePiece, getMoves, syncGame, resetGame } = chessSlice.actions;
 export default chessSlice.reducer;
 
 function generateCells() {
