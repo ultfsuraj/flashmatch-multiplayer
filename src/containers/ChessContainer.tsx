@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
 import { broadcastGameState, exitRoom, joinRoom } from ' @/utils/wss';
-import { Events } from 'flashmatch-multiplayer-shared';
+import { Events, TimeOut } from 'flashmatch-multiplayer-shared';
 import { AnimatePresence, easeInOut, HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
@@ -73,7 +73,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
     };
 
     const localState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{}}');
-    if (Date.now() - localState.lastUpdated > 10000) {
+    if (Date.now() - localState.lastUpdated > TimeOut) {
       localStorage.removeItem(GAMES[index].name);
     }
 

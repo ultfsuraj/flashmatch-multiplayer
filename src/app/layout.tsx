@@ -29,7 +29,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <SocketProvider url="https://flashmatch-multiplayer-wss.onrender.com" key="socket">
+      {/* <SocketProvider url="https://flashmatch-multiplayer-wss.onrender.com" key="socket"> */}
+      <SocketProvider url="http://localhost:3001" key="socket">
         <Providers key="redux">
           <body className={`${montserrat.variable} ${bangers.variable} overflow-hidden antialiased`}>{children}</body>
         </Providers>
