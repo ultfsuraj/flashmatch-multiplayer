@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 import { BLACK_PIECES, WHITE_PIECES } from ' @/utils/constants';
+import { Events, Games } from 'flashmatch-multiplayer-shared';
 
 export const PAWN = 'pawn';
 export const ROOK = 'rook';
@@ -68,6 +69,18 @@ export const chessSlice = createSlice({
       // check ?
       // checkmate ?
       // we'll see that on next color's move
+      const gameName: keyof typeof Games = 'chess';
+      const gameState: Events['syncGameState']['payload'] & {
+        state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+      } = {
+        lastUpdated: state.gameInfo.lastUpdated,
+        state: {
+          turn: state.gameInfo.turn,
+          pieces: newState.pieces,
+          pieceIDs: newState.pieceIDs,
+        },
+      };
+      localStorage.setItem(gameName, JSON.stringify(gameState));
     },
     getMoves: (state, action: PayloadAction<number>) => {
       const id = action.payload;
@@ -141,11 +154,14 @@ export const chessSlice = createSlice({
     },
     syncGame: (
       state,
-      action: PayloadAction<{
-        lastUpdated: number;
-        state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
-      }>
+      action: PayloadAction<
+        Events['syncGameState']['payload'] & {
+          state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+        }
+      >
     ) => {
+      console.log('current state time ', state.gameInfo.lastUpdated);
+      console.log('received sync ', action.payload);
       const lastUpdated = action.payload.lastUpdated;
       const { turn, pieceIDs, pieces } = action.payload.state;
       state.gameInfo.lastUpdated = lastUpdated;

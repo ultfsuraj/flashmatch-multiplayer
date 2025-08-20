@@ -41,15 +41,9 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     if (!socket) return;
+    const prevState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{}');
     console.log('broadcasting pieces on player join', pieceIDs.length);
-    broadcastGameState(socket, 'syncGameState', {
-      lastUpdated,
-      state: {
-        turn,
-        pieceIDs,
-        pieces,
-      },
-    });
+    if (prevState && prevState.lastUpdated) broadcastGameState(socket, 'syncGameState', prevState);
   }, []);
 
   const syncGameState: Events['syncGameState']['name'] = 'syncGameState';
@@ -60,7 +54,6 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       }
     ) => {
       if (lastUpdated < payload.lastUpdated) {
-        console.log('received sync game state ', payload);
         dispatch(syncGame(payload));
       }
     },
@@ -84,14 +77,11 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           setJoined(true);
         });
       } else {
-        broadcastGameState(socket, 'syncGameState', {
-          lastUpdated,
-          state: {
-            turn,
-            pieceIDs,
-            pieces,
-          },
-        });
+        const payload = JSON.parse(localStorage.getItem(GAMES[index].name) || '{}');
+        if (payload && payload.lastUpdated) {
+          broadcastGameState(socket, 'syncGameState', payload);
+          dispatch(syncGame(payload));
+        }
         socket.on(playerJoined, playerJoinedHandler);
         socket.on(makeMove, makeMoveHandler);
         socket.on(syncGameState, syncGameHandler);
