@@ -41,8 +41,8 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     if (!socket) return;
-    const prevState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{}');
-    console.log('broadcasting pieces on player join', pieceIDs.length);
+    const prevState = JSON.parse(localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{}}');
+    console.log('broadcasting to new joiner ', prevState);
     if (prevState && prevState.lastUpdated) broadcastGameState(socket, 'syncGameState', prevState);
   }, []);
 
@@ -53,19 +53,29 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
       }
     ) => {
-      if (lastUpdated < payload.lastUpdated) {
-        dispatch(syncGame(payload));
-      }
+      console.log('received game state  ', payload);
+      dispatch(syncGame(payload));
     },
     []
   );
 
   useEffect(() => {
+    if (socket && gameOpen) {
+      socket.on(playerJoined, playerJoinedHandler);
+      socket.on(makeMove, makeMoveHandler);
+      socket.on(syncGameState, syncGameHandler);
+    }
+
     const payload = {
       gameName: GAMES[index].name,
       roomid: 'Room Input2',
       playerName: playerName,
     };
+
+    const localState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{}}');
+    if (Date.now() - localState.lastUpdated > 10000) {
+      localStorage.removeItem(GAMES[index].name);
+    }
 
     if (gameOpen && socket) {
       if (!joined) {
@@ -77,14 +87,11 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           setJoined(true);
         });
       } else {
-        const payload = JSON.parse(localStorage.getItem(GAMES[index].name) || '{}');
-        if (payload && payload.lastUpdated) {
-          broadcastGameState(socket, 'syncGameState', payload);
-          dispatch(syncGame(payload));
+        if (localState && localState.lastUpdated) {
+          broadcastGameState(socket, 'syncGameState', localState);
+          console.log('synced from local ', localState);
+          dispatch(syncGame(localState));
         }
-        socket.on(playerJoined, playerJoinedHandler);
-        socket.on(makeMove, makeMoveHandler);
-        socket.on(syncGameState, syncGameHandler);
       }
     }
     return () => {
@@ -97,6 +104,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         setWhite(true);
         dispatch(updateColor(true));
       }
+
       socket.off(makeMove, makeMoveHandler);
       socket.off(playerJoined, playerJoinedHandler);
       socket.off(syncGameState, syncGameHandler);
@@ -126,7 +134,8 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         <motion.button
           className="bg-black px-2 py-1 font-semibold text-white"
           onClick={() => {
-            dispatch(resetGame());
+            // reset only if both party agrees, because click close then open again , and state has to be synced by opponent
+            // dispatch(resetGame());
             onClick();
           }}
         >

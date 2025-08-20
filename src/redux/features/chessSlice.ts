@@ -161,7 +161,8 @@ export const chessSlice = createSlice({
       >
     ) => {
       console.log('current state time ', state.gameInfo.lastUpdated);
-      console.log('received sync ', action.payload);
+      if (action.payload.lastUpdated <= state.gameInfo.lastUpdated) return;
+      console.log('to sync time ', action.payload.lastUpdated);
       const lastUpdated = action.payload.lastUpdated;
       const { turn, pieceIDs, pieces } = action.payload.state;
       state.gameInfo.lastUpdated = lastUpdated;
@@ -174,7 +175,7 @@ export const chessSlice = createSlice({
         gameInfo: {
           turn: 1,
           color: state.gameInfo.color,
-          lastUpdated: state.gameInfo.lastUpdated,
+          lastUpdated: 0,
         },
         cells: generateCells(),
         pieces: generatePieces(),
