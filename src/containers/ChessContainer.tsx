@@ -172,7 +172,6 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
               <div className="flex-center h-full w-full drop-shadow-2xl">
                 <RoomJoinForm
                   onClick={(playerName, roomName) => {
-                    setPlayer1(playerName);
                     setRoomName(roomName);
                     if (socket)
                       joinRoom(
@@ -184,8 +183,10 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                             setWhite(false);
                             dispatch(updateColor(false));
                           }
-                          if (!error) setJoined(true);
-                          else {
+                          if (!error) {
+                            setJoined(true);
+                            setPlayer1(playerName);
+                          } else {
                             setJoinError(error);
                             setTimeout(() => {
                               setJoinError('');
