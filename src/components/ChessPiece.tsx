@@ -24,6 +24,7 @@ const ChessPiece = ({ pieceId, ...MotionDivProps }: ChessPieceProps) => {
         className="h-full w-full p-1"
         layout
         style={{ gridRowStart: y, gridColumnStart: x }}
+        transition={{ type: 'tween', duration: 0.3 }}
         {...MotionDivProps}
         onClick={() => {
           dispatch(getMoves(pieceId));

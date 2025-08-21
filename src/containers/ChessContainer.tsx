@@ -90,6 +90,9 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         setJoined(false);
         setWhite(true);
         dispatch(updateColor(true));
+        setPlayer1('');
+        setPlayer2('');
+        setRoomName('');
       }
 
       socket.off(makeMove, makeMoveHandler);
@@ -128,6 +131,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         />
       </div>
 
+      <div className="font-montserrat">{player1 && !player2 ? 'waiting for opponent' : player2}</div>
       <AnimatePresence mode="popLayout">
         {gameOpen && (
           <motion.div
@@ -198,7 +202,9 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           </motion.div>
         )}
       </AnimatePresence>
+      <div className="font-montserrat">{player1}</div>
 
+      <div></div>
       <div></div>
       <div></div>
     </motion.div>
