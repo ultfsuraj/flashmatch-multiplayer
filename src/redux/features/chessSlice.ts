@@ -1,4 +1,4 @@
-import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BLACK_PIECES, WHITE_PIECES } from ' @/utils/constants';
 import { Events, Games } from 'flashmatch-multiplayer-shared';
 

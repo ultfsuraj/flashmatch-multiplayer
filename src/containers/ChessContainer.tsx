@@ -92,7 +92,6 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         dispatch(updateColor(true));
         setPlayer1('');
         setPlayer2('');
-        setRoomName('');
       }
 
       socket.off(makeMove, makeMoveHandler);
@@ -131,7 +130,9 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         />
       </div>
 
-      <div className="font-montserrat">{player1 && !player2 ? 'waiting for opponent' : player2}</div>
+      <div className="font-montserrat">
+        {player1 && !player2 ? 'waiting for opponent' : player2 ? `@ ${player2}` : ''}
+      </div>
       <AnimatePresence mode="popLayout">
         {gameOpen && (
           <motion.div
@@ -171,13 +172,17 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
             {!joined && gameOpen && (
               <div className="flex-center h-full w-full drop-shadow-2xl">
                 <RoomJoinForm
-                  onClick={(playerName, roomName) => {
-                    setRoomName(roomName);
+                  onClick={(playerName, room) => {
+                    if (room != roomName) {
+                      localStorage.removeItem(GAMES[index].name);
+                      dispatch(resetGame());
+                    }
+                    setRoomName(room);
                     if (socket)
                       joinRoom(
                         socket,
                         'joinRoom',
-                        { gameName: GAMES[index].name, playerName, roomid: roomName },
+                        { gameName: GAMES[index].name, playerName, roomid: room },
                         (order: number, error?: string) => {
                           if (order == 2) {
                             setWhite(false);
@@ -203,7 +208,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="font-montserrat">{player1}</div>
+      <div className="font-montserrat">{player1 ? `@ ${player1}` : ''}</div>
 
       <div></div>
       <div></div>
