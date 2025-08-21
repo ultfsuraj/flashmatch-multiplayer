@@ -1,6 +1,8 @@
 'use client';
 
+import Button from ' @/components/Button';
 import ChessPiece from ' @/components/ChessPiece';
+import RoomJoinForm from ' @/components/RoomJoinForm';
 import { useSocket } from ' @/containers/SocketProvider';
 import { pieceType, resetGame, syncGame, updateColor, updatePiece } from ' @/redux/features/chessSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
@@ -24,11 +26,11 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
   const [white, setWhite] = useState<boolean>(true);
   const [joined, setJoined] = useState<boolean>(false);
-  const [playerName, setPlayerName] = useState<string>(`suraj ${Math.round(Math.random() * 10)}`);
+  const [player1, setPlayer1] = useState<string>(``);
+  const [player2, setPlayer2] = useState<string>(``);
+  const [roomName, setRoomName] = useState<string>('Room1');
+  const [joinError, setJoinError] = useState<string>('');
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
-  const pieces = useAppSelector((state) => state.chessState.pieces);
-  const lastUpdated = useAppSelector((state) => state.chessState.gameInfo.lastUpdated);
-  const turn = useAppSelector((state) => state.chessState.gameInfo.turn);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
 
@@ -40,6 +42,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
+    setPlayer2(payload.playerName);
     if (!socket) return;
     const prevState = JSON.parse(localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{}}');
     console.log('broadcasting to new joiner ', prevState);
@@ -66,32 +69,16 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       socket.on(syncGameState, syncGameHandler);
     }
 
-    const payload = {
-      gameName: GAMES[index].name,
-      roomid: 'Room Input2',
-      playerName: playerName,
-    };
-
     const localState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{}}');
     if (Date.now() - localState.lastUpdated > TimeOut) {
       localStorage.removeItem(GAMES[index].name);
     }
 
-    if (gameOpen && socket) {
-      if (!joined) {
-        joinRoom(socket, 'joinRoom', payload, (order: number) => {
-          if (order == 2) {
-            setWhite(false);
-            dispatch(updateColor(false));
-          }
-          setJoined(true);
-        });
-      } else {
-        if (localState && localState.lastUpdated) {
-          broadcastGameState(socket, 'syncGameState', localState);
-          console.log('synced from local ', localState);
-          dispatch(syncGame(localState));
-        }
+    if (gameOpen && socket && joined) {
+      if (localState && localState.lastUpdated) {
+        broadcastGameState(socket, 'syncGameState', localState);
+        console.log('synced from local ', localState);
+        dispatch(syncGame(localState));
       }
     }
     return () => {
@@ -99,7 +86,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       if (gameOpen && joined) {
         console.log('game closed');
         const exit: Events['exitRoom']['name'] = 'exitRoom';
-        exitRoom(socket, exit, payload);
+        exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
         setJoined(false);
         setWhite(true);
         dispatch(updateColor(true));
@@ -109,7 +96,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       socket.off(playerJoined, playerJoinedHandler);
       socket.off(syncGameState, syncGameHandler);
     };
-  }, [gameOpen, joined]);
+  }, [gameOpen, joined, player1, roomName]);
 
   return (
     <motion.div
@@ -131,16 +118,14 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
           src={ICONS[index]}
         />
         <h3 className="font-bangers font-semibold text-white">{GAMES[index].name}</h3>
-        <motion.button
-          className="bg-black px-2 py-1 font-semibold text-white"
+        <Button
+          text="close"
           onClick={() => {
             // reset only if both party agrees, because click close then open again , and state has to be synced by opponent
             // dispatch(resetGame());
             onClick();
           }}
-        >
-          close
-        </motion.button>
+        />
       </div>
 
       <AnimatePresence mode="popLayout">
@@ -178,6 +163,38 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                 <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} />
               ))}
             </div>
+            {/* join form */}
+            {!joined && gameOpen && (
+              <div className="flex-center h-full w-full drop-shadow-2xl">
+                <RoomJoinForm
+                  onClick={(playerName, roomName) => {
+                    setPlayer1(playerName);
+                    setRoomName(roomName);
+                    if (socket)
+                      joinRoom(
+                        socket,
+                        'joinRoom',
+                        { gameName: GAMES[index].name, playerName, roomid: roomName },
+                        (order: number, error?: string) => {
+                          if (order == 2) {
+                            setWhite(false);
+                            dispatch(updateColor(false));
+                          }
+                          if (!error) setJoined(true);
+                          else {
+                            setJoinError(error);
+                            setTimeout(() => {
+                              setJoinError('');
+                            }, 2000);
+                          }
+                        }
+                      );
+                  }}
+                  className="w-80"
+                  errMsg={joinError}
+                />
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
