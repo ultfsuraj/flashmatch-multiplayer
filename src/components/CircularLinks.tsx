@@ -175,6 +175,30 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           {GAMES[nameRef.current].name}
         </motion.div>
 
+        {/* arrows */}
+        <motion.div
+          className="font-bangers flex-center absolute h-32 cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          style={{
+            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 130),
+            y: circY(0) - 0.9 * (div1Ref.current?.offsetWidth || 130),
+            rotateZ: -90,
+          }}
+          onClick={() => handleDragEnd(false)}
+        >
+          {'>>>>'}
+        </motion.div>
+        <motion.div
+          className="font-bangers flex-center absolute h-32 cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          style={{
+            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 130),
+            y: circY(0) + (div1Ref.current?.offsetWidth || 130),
+            rotateZ: 90,
+          }}
+          onClick={() => handleDragEnd(true)}
+        >
+          {'>>>>'}
+        </motion.div>
+
         {/* items */}
 
         {POSITIONS.map((pos, index) => {
