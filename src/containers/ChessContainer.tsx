@@ -10,9 +10,8 @@ import { cn } from ' @/utils/cn';
 import { GAMES, ICONS } from ' @/utils/constants';
 import { broadcastGameState, exitRoom, joinRoom } from ' @/utils/wss';
 import { Events, TimeOut } from 'flashmatch-multiplayer-shared';
-import { AnimatePresence, easeInOut, HTMLMotionProps, motion } from 'motion/react';
-import Image from 'next/image';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
+import { useCallback, useEffect, useState } from 'react';
 
 export type ChessContainerProps = {
   index: number;
