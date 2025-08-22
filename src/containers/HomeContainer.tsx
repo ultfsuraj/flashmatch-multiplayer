@@ -16,6 +16,14 @@ const HomeContainer = () => {
   }, []);
 
   if (!isMounted) return null;
+  if (window.innerWidth > window.innerHeight) {
+    return (
+      <div className="font-montserrat flex-center flex-col text-center text-xl font-semibold text-white">
+        <p>Open in Mobile or use Potrait mode (reduce window size)</p>
+        <p>screen width must be smaller than height</p>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence mode="popLayout">

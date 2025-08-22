@@ -7,6 +7,7 @@ import type { ColorWarsContainerProps } from ' @/containers/ColorWarsContainer';
 
 import LazyComponent from ' @/components/LazyComponent';
 import { ChessContainerProps } from ' @/containers/ChessContainer';
+import { cn } from ' @/utils/cn';
 
 const DYNAMIC_COMPONENTS = new Array(8);
 
@@ -33,7 +34,7 @@ DYNAMIC_COMPONENTS[7] = lazy(
 );
 
 const getRadius = (w: number, h: number) => {
-  if (h < 2 * w) return 0;
+  if (h < 2 * w) return h / 2;
   return (h * h - 4 * w * w) / (8 * w) + w;
 };
 
@@ -137,7 +138,10 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   };
 
   return (
-    <div ref={containerRef} className="h-[80%] w-[65%]">
+    <div
+      ref={containerRef}
+      className={cn('h-[81dvh]', 2 * window.innerWidth > window.innerHeight ? 'w-[38dvh]' : 'w-[65%]')}
+    >
       {/* circle */}
       <motion.div
         className="rounded-full"
@@ -169,6 +173,30 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           }}
         >
           {GAMES[nameRef.current].name}
+        </motion.div>
+
+        {/* arrows */}
+        <motion.div
+          className="font-bangers flex-center absolute h-32 cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          style={{
+            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 130),
+            y: circY(0) - 0.9 * (div1Ref.current?.offsetWidth || 130),
+            rotateZ: -90,
+          }}
+          onClick={() => handleDragEnd(false)}
+        >
+          {'>>>>'}
+        </motion.div>
+        <motion.div
+          className="font-bangers flex-center absolute h-32 cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          style={{
+            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 130),
+            y: circY(0) + (div1Ref.current?.offsetWidth || 130),
+            rotateZ: 90,
+          }}
+          onClick={() => handleDragEnd(true)}
+        >
+          {'>>>>'}
         </motion.div>
 
         {/* items */}
@@ -204,8 +232,8 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 <Dynamic
                   initial={false}
                   animate={{
-                    width: gameOpen && pos.id == gameId ? window.innerWidth : div1Ref.current?.offsetWidth || 50,
-                    height: gameOpen && pos.id == gameId ? window.innerHeight : div1Ref.current?.offsetWidth || 50,
+                    width: gameOpen && pos.id == gameId ? window.innerWidth : div1Ref.current?.offsetWidth || 120,
+                    height: gameOpen && pos.id == gameId ? window.innerHeight : div1Ref.current?.offsetWidth || 120,
                     borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
                     userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
                     touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
@@ -222,7 +250,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                     setGameOpen(false);
                     setGameId(-1);
                   }}
-                  iconHeight={div1Ref.current?.offsetHeight || 50}
+                  iconHeight={div1Ref.current?.offsetHeight || 120}
                   gameOpen={gameOpen && pos.id == gameId}
                 />
               </LazyComponent>
