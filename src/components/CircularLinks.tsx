@@ -140,7 +140,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   return (
     <div
       ref={containerRef}
-      className={cn('h-[81dvh]', 2 * window.innerWidth > window.innerHeight ? 'w-[38dvh]' : 'w-[65%]')}
+      className={cn('h-[81dvh]', 2 * window.innerWidth > window.innerHeight ? 'w-[35dvh]' : 'w-[65%]')}
     >
       {/* circle */}
       <motion.div
