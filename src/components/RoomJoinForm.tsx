@@ -79,7 +79,7 @@ const RoomJoinForm = ({
           {err}
         </p>
       ))}
-      <Button text="Join" type="submit" />
+      <Button text="Join" type="submit" className="px-4" />
     </form>
   );
 };

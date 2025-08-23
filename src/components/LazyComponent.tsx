@@ -1,15 +1,16 @@
 'use client';
 
-import { useInView } from 'motion/react';
+import { useInView, HTMLMotionProps, motion } from 'motion/react';
 import { Suspense, useRef } from 'react';
 
 const LazyComponent = ({
   children,
   parentRef,
+  ...MotionDivProps
 }: {
   children: React.ReactNode;
   parentRef: React.RefObject<HTMLDivElement | null>;
-}) => {
+} & HTMLMotionProps<'div'>) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, {
     once: true,
@@ -18,7 +19,7 @@ const LazyComponent = ({
   });
 
   return (
-    <div ref={ref}>
+    <motion.div ref={ref} {...MotionDivProps}>
       {isInView ? (
         <Suspense
           fallback={
@@ -34,7 +35,7 @@ const LazyComponent = ({
           SWIPE
         </h3>
       )}
-    </div>
+    </motion.div>
   );
 };
 

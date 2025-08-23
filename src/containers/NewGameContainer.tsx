@@ -13,29 +13,30 @@ export type NewGameContainerProps = {
 const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: NewGameContainerProps) => {
   return (
     <motion.div
-      className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-900"
+      className="flex h-full w-full flex-col items-center justify-between overflow-hidden py-3 pt-4 font-semibold text-neutral-900 *:flex"
       style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
-          className="flex-center top-0 left-0 rounded-full bg-cover bg-no-repeat"
+          className="flex-center pointer-events-none top-0 left-0 rounded-full bg-cover bg-no-repeat"
           initial={false}
           animate={{
             width: gameOpen ? '6vh' : iconHeight,
             height: gameOpen ? '6vh' : iconHeight,
-            borderRadius: gameOpen ? '0%' : '50%',
             position: gameOpen ? 'relative' : 'absolute',
           }}
           transition={MotionDivProps.transition}
           src={ICONS[index]}
         />
         <h3 className="font-bangers text-white">New Game</h3>
-        <motion.button className="bg-black px-2 py-1 text-white" onClick={() => onClick()}>
+        <motion.button className="font-montserrat rounded-md bg-black px-2 py-1 text-white" onClick={() => onClick()}>
           close
         </motion.button>
       </div>
-      <section className="text-white">Coming Soon ...</section>
+      <div></div>
+      <section className="font-montserrat text-white">Coming Soon ...</section>
+      <div></div>
       <div></div>
     </motion.div>
   );
