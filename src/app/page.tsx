@@ -5,13 +5,13 @@ import HomeContainer from ' @/containers/HomeContainer';
 const Page = () => {
   return (
     <div
-      className="flex h-[100dvh] w-full flex-col justify-between overflow-hidden py-3"
+      className="flex h-[100dvh] w-full flex-col justify-between overflow-hidden"
       style={{
         backgroundImage:
           'linear-gradient(to top, #f8fafc 0%, #fecaca 15%, #fca5a5 24%, #e7627d 46%, #b8235a 59%, #701355 71%, #3a1635 84%, #171527 100%)',
       }}
     >
-      <header className="flex-center font-bangers p-2 text-2xl text-white">Flash Match</header>
+      <header className="flex-center font-bangers p-2 pt-3 text-2xl text-white">Flash Match</header>
       <div id="experiment-skeleton" className="flex-center h-full w-full">
         <p className="text-[1px] text-transparent">{seoText1}</p>
         <p className="font-bangers px-2 text-center text-3xl font-semibold text-white">Loading...</p>

@@ -103,10 +103,10 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   return (
     <motion.div
       {...MotionDivProps}
-      className="flex h-full w-full flex-col items-center justify-between overflow-hidden py-3 font-semibold text-neutral-400"
+      className="flex h-full w-full flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
       style={{ backgroundImage: GAMES[index].bgImage }}
     >
-      <div className="flex w-full items-center justify-between p-2">
+      <div className="flex w-full items-center justify-between p-2 pt-3">
         <motion.img
           className="flex-center pointer-events-none top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
           layout
@@ -206,7 +206,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                           }
                         );
                     }}
-                    className="w-80"
+                    className="w-auto"
                     errMsg={joinError}
                   />
                 </div>

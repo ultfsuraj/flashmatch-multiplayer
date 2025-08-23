@@ -54,7 +54,7 @@ const RoomJoinForm = ({
   return (
     <form
       className={cn(
-        'flex-center w-full flex-col gap-3 rounded-md bg-slate-50 px-8 py-4 text-neutral-700 shadow-2xl drop-shadow-2xl',
+        'flex-center w-full flex-col gap-2 rounded-md bg-slate-50 px-6 pt-4 pb-3 text-xs text-neutral-700 shadow-2xl drop-shadow-2xl',
         className
       )}
       onSubmit={(e) => {
@@ -73,7 +73,6 @@ const RoomJoinForm = ({
           placeholder="Enter your name"
         />
       </fieldset>
-
       {errors.map((err, index) => (
         <p key={index} className="w-[80%] text-center text-sm text-red-500">
           {err}

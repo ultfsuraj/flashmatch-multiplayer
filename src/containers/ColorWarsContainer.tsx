@@ -27,11 +27,11 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
 
   return (
     <motion.div
-      className="flex h-full w-full flex-col items-center justify-between overflow-hidden py-3 font-semibold text-neutral-200"
+      className="flex h-full w-full flex-col items-center justify-between overflow-hidden font-semibold text-neutral-200"
       style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
-      <div className="flex w-full items-center justify-between p-2">
+      <div className="flex w-full items-center justify-between p-2 pt-3">
         <motion.img
           className="flex-center pointer-events-none top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
           layout
