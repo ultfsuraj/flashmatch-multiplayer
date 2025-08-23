@@ -30,6 +30,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const [roomName, setRoomName] = useState<string>('Room1');
   const [joinError, setJoinError] = useState<string>('');
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
+  const { color, turn } = useAppSelector((state) => state.chessState.gameInfo);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
 
@@ -126,88 +127,101 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
             // dispatch(resetGame());
             onClick();
           }}
+          className="drop-shadow-xs drop-shadow-neutral-400"
         />
       </div>
 
-      <div className="font-montserrat">
-        {player1 && !player2 ? 'waiting for opponent' : player2 ? `@ ${player2}` : ''}
+      <div className="font-montserrat flex-center gap-4 text-neutral-200">
+        <div
+          className={cn('h-5 w-7 rounded-sm', player2 && (turn % 2 == 1) != color ? 'bg-neutral-50' : 'bg-transparent')}
+        ></div>
+        <span> {player1 && !player2 ? 'waiting for opponent' : player2 ? `@ ${player2}` : ''}</span>
+        <div className="w-7"></div>
       </div>
-      <AnimatePresence mode="popLayout">
-        {gameOpen && (
-          <motion.div
-            className="relative aspect-square w-[95%]"
-            animate={{ rotate: white ? 0 : 180 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-          >
-            <div
-              className="absolute grid h-full w-full bg-neutral-700"
-              style={{
-                gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
-                gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
-              }}
+      <div className="aspect-square w-[95%] drop-shadow-2xl drop-shadow-amber-950">
+        <AnimatePresence mode="popLayout">
+          {gameOpen && (
+            <motion.div
+              className="relative h-full w-full"
+              animate={{ rotate: white ? 0 : 180 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
             >
-              {Array.from({ length: 64 }, (_, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    'h-full w-full',
-                    (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? colors[0] : colors[1]
-                  )}
-                />
-              ))}
-            </div>
-            <div
-              className="absolute grid h-full w-full bg-transparent"
-              style={{
-                gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
-                gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
-              }}
-            >
-              {pieceIDs.map((id) => (
-                <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} />
-              ))}
-            </div>
-            {/* join form */}
-            {!joined && gameOpen && (
-              <div className="flex-center h-full w-full drop-shadow-2xl">
-                <RoomJoinForm
-                  onClick={(playerName, room) => {
-                    if (room != roomName) {
-                      localStorage.removeItem(GAMES[index].name);
-                      dispatch(resetGame());
-                    }
-                    setRoomName(room);
-                    if (socket)
-                      joinRoom(
-                        socket,
-                        'joinRoom',
-                        { gameName: GAMES[index].name, playerName, roomid: room },
-                        (order: number, error?: string) => {
-                          if (order == 2) {
-                            setWhite(false);
-                            dispatch(updateColor(false));
-                          }
-                          if (!error) {
-                            setJoined(true);
-                            setPlayer1(playerName);
-                          } else {
-                            setJoinError(error);
-                            setTimeout(() => {
-                              setJoinError('');
-                            }, 2000);
-                          }
-                        }
-                      );
-                  }}
-                  className="w-80"
-                  errMsg={joinError}
-                />
+              <div
+                className="absolute grid h-full w-full bg-neutral-700"
+                style={{
+                  gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
+                  gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
+                }}
+              >
+                {Array.from({ length: 64 }, (_, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      'h-full w-full',
+                      (Math.floor(index / 8) + (index % 8)) % 2 === 0 ? colors[0] : colors[1]
+                    )}
+                  />
+                ))}
               </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <div className="font-montserrat">{player1 ? `@ ${player1}` : ''}</div>
+              <div
+                className="absolute grid h-full w-full bg-transparent"
+                style={{
+                  gridTemplateRows: `repeat(8, minmax(0, 1fr))`,
+                  gridTemplateColumns: `repeat(8, minmax(0, 1fr))`,
+                }}
+              >
+                {pieceIDs.map((id) => (
+                  <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} />
+                ))}
+              </div>
+              {/* join form */}
+              {!joined && gameOpen && (
+                <div className="flex-center h-full w-full drop-shadow-2xl">
+                  <RoomJoinForm
+                    onClick={(playerName, room) => {
+                      if (room != roomName) {
+                        localStorage.removeItem(GAMES[index].name);
+                        dispatch(resetGame());
+                      }
+                      setRoomName(room);
+                      if (socket)
+                        joinRoom(
+                          socket,
+                          'joinRoom',
+                          { gameName: GAMES[index].name, playerName, roomid: room },
+                          (order: number, error?: string) => {
+                            if (order == 2) {
+                              setWhite(false);
+                              dispatch(updateColor(false));
+                            }
+                            if (!error) {
+                              setJoined(true);
+                              setPlayer1(playerName);
+                            } else {
+                              setJoinError(error);
+                              setTimeout(() => {
+                                setJoinError('');
+                              }, 2000);
+                            }
+                          }
+                        );
+                    }}
+                    className="w-80"
+                    errMsg={joinError}
+                  />
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <div className="font-montserrat flex-center gap-4 text-neutral-200">
+        <div
+          className={cn('h-5 w-7 rounded-sm', player1 && (turn % 2 == 1) == color ? 'bg-neutral-50' : 'bg-transparent')}
+        ></div>
+        <span>{player1 ? `@ ${player1}` : ''}</span>
+        <div className="w-7"></div>
+      </div>
 
       <div></div>
       <div></div>
