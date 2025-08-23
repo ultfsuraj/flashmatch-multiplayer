@@ -34,7 +34,7 @@ export const GAMES: Array<{ name: keyof typeof Games; bgImage: string }> = [
   { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #166D3B 100%)' },
   { name: 'chess', bgImage: 'linear-gradient(130deg, #232526 0%, #1e3c72 100%)' },
   { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #E84393 100%)' },
-  { name: 'colorWars', bgImage: 'linear-gradient(to right, #243949 0%, #517fa4 100%)' },
+  { name: 'colorWars', bgImage: 'linear-gradient(147deg, #000000 0%, #2c3e50 74%)' },
 ];
 
 export const BLACK_PIECES: Record<string, string> = {

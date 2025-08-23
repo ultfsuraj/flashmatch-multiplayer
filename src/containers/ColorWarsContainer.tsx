@@ -7,6 +7,7 @@ import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { GAMES, ICONS } from ' @/utils/constants';
 import { cn } from ' @/utils/cn';
+import Button from ' @/components/Button';
 
 export type ColorWarsContainerProps = {
   index: number;
@@ -26,7 +27,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
+      className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-200"
       style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
@@ -45,15 +46,15 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
           src={ICONS[index]}
         />
         <h3 className="font-bangers font-semibold text-white">{GAMES[index].name}</h3>
-        <button
-          className="bg-black px-2 py-1 font-semibold text-white"
+
+        <Button
+          text="close"
           onClick={() => {
             dispatch(resetGame());
             onClick();
           }}
-        >
-          close
-        </button>
+          className="drop-shadow-xs drop-shadow-neutral-400"
+        />
       </div>
 
       <TurnIndicator />
@@ -61,7 +62,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
       <AnimatePresence mode="popLayout">
         {gameOpen && (
           <div
-            className="grid w-[90%] gap-2 rounded-md bg-neutral-700 p-2 *:aspect-square"
+            className="grid aspect-square w-[90%] gap-2 rounded-md bg-neutral-800 p-2 drop-shadow-xl drop-shadow-neutral-400"
             style={{
               gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
               gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
@@ -87,7 +88,7 @@ export default ColorWarsContainer;
 function TurnIndicator() {
   const { turn, color1, color2 } = useAppSelector((state) => state.colorWarsState.gameInfo);
   return (
-    <div className="flex-center gap-4 text-neutral-200">
+    <div className="flex-center font-montserrat gap-4">
       <span>Turn : </span>
       <div className={cn('h-5 w-7 rounded-sm', turn % 2 ? color1 : color2)}></div>
     </div>
