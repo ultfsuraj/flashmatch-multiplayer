@@ -58,19 +58,21 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
 
       <TurnIndicator />
       {/* grid */}
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         {gameOpen && (
-          <div
+          <motion.div
+            layout
             className="grid aspect-square w-[90%] gap-2 rounded-md bg-neutral-800 p-2 drop-shadow-xl drop-shadow-neutral-400"
             style={{
               gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
               gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
             }}
+            exit={{ scale: 0.1, y: -100, transition: { type: 'spring', duration: 0.3, bounce: 0.1 } }}
           >
             {cellItems.map((_, index) => (
               <DotSquare key={index} id={index} />
             ))}
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

@@ -110,11 +110,11 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         <motion.img
           className="flex-center pointer-events-none top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
           layout
+          style={{ position: gameOpen ? 'relative' : 'absolute', left: 0, top: 0 }}
           initial={false}
           animate={{
             width: gameOpen ? '6vh' : iconHeight,
             height: gameOpen ? '6vh' : iconHeight,
-            position: gameOpen ? 'relative' : 'absolute',
           }}
           transition={MotionDivProps.transition}
           src={ICONS[index]}
@@ -139,12 +139,13 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
         <div className="w-7"></div>
       </div>
       <div className="aspect-square w-[95%] drop-shadow-2xl drop-shadow-amber-950">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
           {gameOpen && (
             <motion.div
               className="relative h-full w-full"
               animate={{ rotate: white ? 0 : 180 }}
               transition={{ duration: 1, ease: 'easeOut' }}
+              exit={{ scale: 0.1, y: -100, transition: { type: 'spring', duration: 0.3, bounce: 0.1 } }}
             >
               <div
                 className="absolute grid h-full w-full bg-neutral-700"

@@ -155,7 +155,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
       >
         {/* controller  */}
         <motion.div
-          className="absolute aspect-square h-[26%] rounded-full border border-neutral-500 bg-transparent"
+          className="absolute aspect-square h-[23%] rounded-full border border-neutral-500 bg-transparent"
           ref={div1Ref}
           style={{
             x: circX(0),
@@ -166,7 +166,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         ></motion.div>
         {/* game name */}
         <motion.div
-          className="font-bangers flex-center absolute bg-transparent px-4 text-lg font-semibold text-white"
+          className="font-bangers flex-center absolute justify-start bg-transparent pl-3 text-lg font-semibold text-white"
           style={{
             height: div1Ref.current?.offsetWidth || 120,
             width: div1Ref.current?.offsetWidth || 120,
@@ -179,11 +179,11 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
 
         {/* arrows */}
         <motion.div
-          className="font-bangers flex-center absolute cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          className="font-bangers flex-center absolute cursor-pointer bg-transparent px-4 text-2xl font-semibold text-white select-none"
           style={{
             height: div1Ref.current?.offsetWidth || 120,
             width: div1Ref.current?.offsetWidth || 120,
-            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 120),
+            x: circX(0) + 0.6 * (div1Ref.current?.offsetWidth || 120),
             y: circY(0) - 0.9 * (div1Ref.current?.offsetWidth || 120),
             rotateZ: -90,
           }}
@@ -192,11 +192,11 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           {'>>>>'}
         </motion.div>
         <motion.div
-          className="font-bangers flex-center absolute cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          className="font-bangers flex-center absolute cursor-pointer bg-transparent px-4 text-2xl font-semibold text-white select-none"
           style={{
             height: div1Ref.current?.offsetWidth || 120,
             width: div1Ref.current?.offsetWidth || 120,
-            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 120),
+            x: circX(0) + 0.6 * (div1Ref.current?.offsetWidth || 120),
             y: circY(0) + (div1Ref.current?.offsetWidth || 120),
             rotateZ: 90,
           }}
@@ -228,6 +228,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
                 borderRadius: '50%',
               }}
+              layout
               initial={false}
               animate={controlsARR.current[pos.id]}
               drag={open ? false : 'y'}
