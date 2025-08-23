@@ -31,7 +31,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
     >
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
-          className="flex-center top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
+          className="flex-center pointer-events-none top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
           layout
           initial={false}
           animate={{
