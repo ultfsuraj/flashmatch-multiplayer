@@ -116,15 +116,6 @@ export const gameSlice = createSlice({
         frontColor: neutralColor,
         backColor: neutralColor,
       };
-
-      console.log(state.regions.one, state.regions.two);
-
-      if (state.regions.one <= 0) {
-        console.log('red won');
-      }
-      if (state.regions.two <= 0) {
-        console.log('blue won');
-      }
     },
     updateOne: (state, action: PayloadAction<Pick<cellType, 'id'> & Partial<Omit<cellType, 'id'>>>) => {
       state.cells[action.payload.id] = { ...state.cells[action.payload.id], ...action.payload };

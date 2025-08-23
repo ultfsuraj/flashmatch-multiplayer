@@ -26,7 +26,12 @@ const DotSquare = ({ id }: { id: number }) => {
     async function animateSpread() {
       await flipControls.start({ rotateY: flip, transition: { duration: 0.4 } });
       if (count > 3) {
-        dispatch(spread(id));
+        setTimeout(
+          () => {
+            dispatch(spread(id));
+          },
+          Math.round(100 + Math.random() * 200)
+        );
       }
     }
     setIsAnimating(true);
@@ -45,7 +50,7 @@ const DotSquare = ({ id }: { id: number }) => {
         <motion.div layout className={cn('absolute h-full w-full rounded-md p-1 backface-hidden', frontColor)}>
           <div ref={ref} className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id={`front-${id}`}>
-              {Array.from({ length: count }, (_, index) => (
+              {Array.from({ length: count % 5 }, (_, index) => (
                 <motion.div
                   layout
                   layoutId={`${id}f${index}`}
@@ -68,7 +73,7 @@ const DotSquare = ({ id }: { id: number }) => {
         >
           <div className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id={`back-${id}`}>
-              {Array.from({ length: count }, (_, index) => (
+              {Array.from({ length: count % 5 }, (_, index) => (
                 <motion.div
                   layout
                   layoutId={`${id}b${index}`}
