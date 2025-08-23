@@ -123,14 +123,14 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
   const handleClick = (id: number) => {
     const control = controlsARR.current[id];
     control.start({
-      height: !open ? '100dvh' : div1Ref.current?.offsetHeight,
-      width: !open ? '100vw' : div1Ref.current?.offsetWidth,
+      height: !open ? '100dvh' : div1Ref.current?.offsetHeight || 120,
+      width: !open ? '100vw' : div1Ref.current?.offsetWidth || 120,
       x: !open ? 2 * r - w : POSITIONS[id].x,
-      y: !open ? 10 : POSITIONS[id].y,
+      y: !open ? -(containerRef?.current?.getBoundingClientRect().top || 0) : POSITIONS[id].y,
       scale: !open ? 1 : POSITIONS[id].scale,
       zIndex: !open ? POSITIONS.length + 50 : 0,
       borderRadius: !open ? '0%' : '50%',
-      transition: { type: 'spring', duration: 0.3, bounce: 0 },
+      transition: { type: 'spring', duration: 0.5, bounce: 0.1 },
     });
     if (!open) setGameOpen(true);
     setOpen((prev) => !prev);
@@ -207,16 +207,20 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           else Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
 
           return (
-            <motion.div
+            <LazyComponent
+              parentRef={containerRef}
               key={pos.id}
-              className="flex-center absolute h-32 w-32"
+              className="flex-center absolute h-32 w-32 overflow-hidden"
               style={{
                 x: pos.x,
                 y: pos.y,
                 scale: pos.scale,
                 backgroundImage: GAMES[pos.id].bgImage,
-                borderRadius: '50%',
+                userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
+                touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
+                borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
               }}
+              initial={false}
               animate={controlsARR.current[pos.id]}
               drag={open ? false : 'y'}
               dragConstraints={{ top: pos.y, bottom: pos.y }}
@@ -228,33 +232,26 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 if (!gameOpen) handleClick(pos.id);
               }}
             >
-              <LazyComponent parentRef={containerRef}>
-                <Dynamic
-                  initial={false}
-                  animate={{
-                    width: gameOpen && pos.id == gameId ? window.innerWidth : div1Ref.current?.offsetWidth || 120,
-                    height: gameOpen && pos.id == gameId ? window.innerHeight : div1Ref.current?.offsetWidth || 120,
-                    borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
-                    userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
-                    touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
-                    y: gameOpen && pos.id == gameId ? -(containerRef?.current?.getBoundingClientRect().top || 0) : 0,
-                  }}
-                  transition={{ type: 'spring', duration: 0.3, bounce: 0.2, delay: 0.05 }}
-                  layout
-                  index={index}
-                  onClick={() => {
-                    if (gameOpen) {
-                      handleClick(pos.id);
-                    }
+              <Dynamic
+                style={{
+                  userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
+                  touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
+                }}
+                layout
+                index={index}
+                onClick={() => {
+                  if (gameOpen) {
+                    handleClick(pos.id);
+                  }
 
-                    setGameOpen(false);
-                    setGameId(-1);
-                  }}
-                  iconHeight={div1Ref.current?.offsetHeight || 120}
-                  gameOpen={gameOpen && pos.id == gameId}
-                />
-              </LazyComponent>
-            </motion.div>
+                  setGameOpen(false);
+                  setGameId(-1);
+                }}
+                iconHeight={div1Ref.current?.offsetHeight || 120}
+                transition={{ type: 'spring', duration: 0.4, bounce: 0.1 }}
+                gameOpen={gameOpen && pos.id == gameId}
+              />
+            </LazyComponent>
           );
         })}
 

@@ -102,18 +102,18 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-between overflow-hidden font-semibold text-neutral-400"
-      style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
+      className="flex h-full w-full flex-col items-center justify-between overflow-hidden py-3 font-semibold text-neutral-400"
+      style={{ backgroundImage: GAMES[index].bgImage }}
     >
       <div className="flex w-full items-center justify-between p-2">
         <motion.img
           className="flex-center pointer-events-none top-0 left-0 z-10 rounded-full bg-contain bg-no-repeat"
+          layout
           initial={false}
           animate={{
             width: gameOpen ? '6vh' : iconHeight,
             height: gameOpen ? '6vh' : iconHeight,
-            borderRadius: gameOpen ? '0%' : '50%',
             position: gameOpen ? 'relative' : 'absolute',
           }}
           transition={MotionDivProps.transition}
