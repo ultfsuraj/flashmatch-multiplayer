@@ -111,7 +111,7 @@ export const gameSlice = createSlice({
 
       state.cells[id] = {
         id,
-        count: 0,
+        count: state.cells[id].count - 4,
         flip: state.cells[id].flip + 180,
         frontColor: neutralColor,
         backColor: neutralColor,

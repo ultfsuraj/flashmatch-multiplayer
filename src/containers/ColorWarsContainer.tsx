@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
 import { AnimatePresence, HTMLMotionProps, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { GAMES, ICONS } from ' @/utils/constants';
+import { cn } from ' @/utils/cn';
 
 export type ColorWarsContainerProps = {
   index: number;
@@ -55,6 +56,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
         </button>
       </div>
 
+      <TurnIndicator />
       {/* grid */}
       <AnimatePresence mode="popLayout">
         {gameOpen && (
@@ -74,8 +76,20 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
 
       <div></div>
       <div></div>
+      <div></div>
+      <div></div>
     </motion.div>
   );
 };
 
 export default ColorWarsContainer;
+
+function TurnIndicator() {
+  const { turn, color1, color2 } = useAppSelector((state) => state.colorWarsState.gameInfo);
+  return (
+    <div className="flex-center gap-4 text-neutral-200">
+      <span>Turn : </span>
+      <div className={cn('h-5 w-7 rounded-sm', turn % 2 ? color1 : color2)}></div>
+    </div>
+  );
+}
