@@ -27,16 +27,18 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const [joined, setJoined] = useState<boolean>(false);
   const [player1, setPlayer1] = useState<string>(``);
   const [player2, setPlayer2] = useState<string>(``);
-  const [roomName, setRoomName] = useState<string>('Room1');
+  const [roomName, setRoomName] = useState<string>('');
   const [joinError, setJoinError] = useState<string>('');
   const pieceIDs = useAppSelector((state) => state.chessState.pieceIDs);
   const { color, turn } = useAppSelector((state) => state.chessState.gameInfo);
   const dispatch = useAppDispatch();
   const socket = useSocket()?.current;
+  const storedRoom = JSON.parse(localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{"roomName":""}}')
+    .state.roomName;
 
   const makeMove: Events['makeMove']['name'] = 'makeMove';
-  const makeMoveHandler = useCallback((payload: { id: number; x: number; y: number } & object) => {
-    dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y }));
+  const makeMoveHandler = useCallback((payload: { id: number; x: number; y: number; roomName: string } & object) => {
+    dispatch(updatePiece({ ...payload, id: payload.id, x: payload.x, y: payload.y, roomName: payload.roomName }));
   }, []);
 
   const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
@@ -44,16 +46,19 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     setPlayer2(payload.playerName);
     if (!socket) return;
-    const prevState = JSON.parse(localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{}}');
+    const prevState = JSON.parse(
+      localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{"roomName":""}}'
+    );
     console.log('broadcasting to new joiner ', prevState);
     if (prevState && prevState.lastUpdated) broadcastGameState(socket, 'syncGameState', prevState);
   }, []);
 
   const syncGameState: Events['syncGameState']['name'] = 'syncGameState';
+  type GameStateType = { turn: number; pieceIDs: number[]; roomName: string; pieces: Record<number, pieceType> };
   const syncGameHandler = useCallback(
     (
       payload: Events['syncGameState']['payload'] & {
-        state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+        state: GameStateType;
       }
     ) => {
       console.log('received game state  ', payload);
@@ -63,22 +68,27 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   );
 
   useEffect(() => {
-    if (socket && gameOpen) {
+    if (socket) {
       socket.on(playerJoined, playerJoinedHandler);
       socket.on(makeMove, makeMoveHandler);
       socket.on(syncGameState, syncGameHandler);
     }
 
-    const localState = JSON.parse(localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{}}');
-    if (Date.now() - localState.lastUpdated > TimeOut) {
+    const localState = JSON.parse(
+      localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{"roomName":""}}'
+    );
+    console.log('stored in local storage ', localState);
+    if (Date.now() - localState.lastUpdated > TimeOut || (roomName.length && localState.state.roomName != roomName)) {
       localStorage.removeItem(GAMES[index].name);
     }
 
     if (gameOpen && socket && joined) {
       if (localState && localState.lastUpdated) {
         broadcastGameState(socket, 'syncGameState', localState);
-        console.log('synced from local ', localState);
-        dispatch(syncGame(localState));
+        if (localState.state.roomName == roomName) {
+          console.log('synced from local ', localState);
+          dispatch(syncGame(localState));
+        }
       }
     }
     return () => {
@@ -172,7 +182,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                 }}
               >
                 {pieceIDs.map((id) => (
-                  <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} />
+                  <ChessPiece key={id} pieceId={id} animate={{ rotate: white ? 0 : 180 }} roomName={roomName} />
                 ))}
               </div>
               {/* join form */}
@@ -180,10 +190,6 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                 <div className="flex-center h-full w-full drop-shadow-2xl">
                   <RoomJoinForm
                     onClick={(playerName, room) => {
-                      if (room != roomName) {
-                        localStorage.removeItem(GAMES[index].name);
-                        dispatch(resetGame());
-                      }
                       setRoomName(room);
                       if (socket)
                         joinRoom(
@@ -198,6 +204,10 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                             if (!error) {
                               setJoined(true);
                               setPlayer1(playerName);
+                              if (room != (storedRoom || roomName)) {
+                                localStorage.removeItem(GAMES[index].name);
+                                dispatch(resetGame());
+                              }
                             } else {
                               setJoinError(error);
                               setTimeout(() => {
