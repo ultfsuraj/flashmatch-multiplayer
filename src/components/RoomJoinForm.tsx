@@ -54,7 +54,7 @@ const RoomJoinForm = ({
   return (
     <form
       className={cn(
-        'flex-center w-full flex-col gap-2 rounded-md bg-slate-50 px-6 pt-4 pb-3 text-xs text-neutral-700 shadow-2xl drop-shadow-2xl',
+        'flex-center relative w-full flex-col gap-2 rounded-md bg-slate-50 px-6 pt-4 pb-3 text-xs text-neutral-700 shadow-2xl drop-shadow-2xl',
         className
       )}
       onSubmit={(e) => {
