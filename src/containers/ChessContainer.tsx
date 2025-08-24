@@ -15,12 +15,13 @@ import { useCallback, useEffect, useState } from 'react';
 
 export type ChessContainerProps = {
   index: number;
+  activeId: number;
   iconHeight: number | string;
   gameOpen: boolean;
   onClick: () => void;
 } & HTMLMotionProps<'div'>;
 
-const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
+const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...MotionDivProps }: ChessContainerProps) => {
   // const colors = ['bg-neutral-100', 'bg-neutral-500'];
   const colors = ['bg-[#f0d9b5]', 'bg-[#b58863]'];
   const [white, setWhite] = useState<boolean>(true);
@@ -45,6 +46,8 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     setPlayer2(payload.playerName);
+    console.log('inside CHESS ');
+    console.log('player 2 ', GAMES[index].name);
     if (!socket) return;
     const prevState = JSON.parse(
       localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{"roomName":""}}'
@@ -68,7 +71,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
   );
 
   useEffect(() => {
-    if (socket) {
+    if (socket && gameOpen && index == activeId) {
       socket.on(playerJoined, playerJoinedHandler);
       socket.on(makeMove, makeMoveHandler);
       socket.on(syncGameState, syncGameHandler);
@@ -86,27 +89,28 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
       if (localState && localState.lastUpdated) {
         broadcastGameState(socket, 'syncGameState', localState);
         if (localState.state.roomName == roomName) {
+          console.log('inside CHESS ', GAMES[index].name);
           console.log('synced from local ', localState);
           dispatch(syncGame(localState));
         }
       }
     }
     return () => {
-      if (!socket) return;
       if (gameOpen && joined) {
         console.log('game closed');
         const exit: Events['exitRoom']['name'] = 'exitRoom';
-        exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
+        if (socket) exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
         setJoined(false);
         setWhite(true);
         dispatch(updateColor(true));
         setPlayer1('');
         setPlayer2('');
       }
-
-      socket.off(makeMove, makeMoveHandler);
-      socket.off(playerJoined, playerJoinedHandler);
-      socket.off(syncGameState, syncGameHandler);
+      if (socket) {
+        socket.off(makeMove, makeMoveHandler);
+        socket.off(playerJoined, playerJoinedHandler);
+        socket.off(syncGameState, syncGameHandler);
+      }
     };
   }, [gameOpen, joined, player1, roomName]);
 
@@ -217,7 +221,7 @@ const ChessContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProp
                           }
                         );
                     }}
-                    className="w-auto"
+                    className="w-[75%]"
                     errMsg={joinError}
                   />
                 </div>

@@ -5,12 +5,20 @@ import { GAMES, ICONS } from ' @/utils/constants';
 
 export type NewGameContainerProps = {
   index: number;
+  activeId: number;
   iconHeight: number | string;
   gameOpen: boolean;
   onClick: () => void;
 } & HTMLMotionProps<'div'>;
 
-const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: NewGameContainerProps) => {
+const NewGameContainer = ({
+  index,
+  activeId,
+  iconHeight,
+  gameOpen,
+  onClick,
+  ...MotionDivProps
+}: NewGameContainerProps) => {
   return (
     <motion.div
       className="flex h-full w-full flex-col items-center justify-between overflow-hidden font-semibold text-neutral-900 *:flex"

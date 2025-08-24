@@ -15,12 +15,20 @@ import RoomJoinForm from ' @/components/RoomJoinForm';
 
 export type ColorWarsContainerProps = {
   index: number;
+  activeId: number;
   iconHeight: number | string;
   gameOpen: boolean;
   onClick: () => void;
 } & HTMLMotionProps<'div'>;
 
-const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: ColorWarsContainerProps) => {
+const ColorWarsContainer = ({
+  index,
+  activeId,
+  iconHeight,
+  gameOpen,
+  onClick,
+  ...MotionDivProps
+}: ColorWarsContainerProps) => {
   const [joined, setJoined] = useState<boolean>(false);
   const [player1, setPlayer1] = useState<string>(``);
   const [player2, setPlayer2] = useState<string>(``);
@@ -42,6 +50,8 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
     console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     setPlayer2(payload.playerName);
+    console.log('inside COLOR WARS ');
+    console.log('player 2 ', GAMES[index].name);
     if (!socket) return;
     const prevState = JSON.parse(
       localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{"roomName":""}}'
@@ -70,7 +80,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
   );
 
   useEffect(() => {
-    if (socket) {
+    if (socket && gameOpen && index == activeId) {
       socket.on(playerJoined, playerJoinedHandler);
       socket.on(makeMove, makeMoveHandler);
       socket.on(syncGameState, syncGameHandler);
@@ -82,6 +92,7 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
     if (Date.now() - localState.lastUpdated > TimeOut || (roomName.length && localState.state.roomName != roomName)) {
       localStorage.removeItem(GAMES[index].name);
     }
+    console.log('inside COLOR WARS ', GAMES[index].name);
     console.log('from local storage on mount', localState);
 
     if (gameOpen && socket && joined) {
@@ -93,20 +104,20 @@ const ColorWarsContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDiv
     }
 
     return () => {
-      if (!socket) return;
       if (gameOpen && joined) {
         console.log('game closed');
         const exit: Events['exitRoom']['name'] = 'exitRoom';
-        exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
+        if (socket) exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
         setJoined(false);
         dispatch(updateColor(true));
         setPlayer1('');
         setPlayer2('');
       }
-
-      socket.off(makeMove, makeMoveHandler);
-      socket.off(playerJoined, playerJoinedHandler);
-      socket.off(syncGameState, syncGameHandler);
+      if (socket) {
+        socket.off(makeMove, makeMoveHandler);
+        socket.off(playerJoined, playerJoinedHandler);
+        socket.off(syncGameState, syncGameHandler);
+      }
     };
   }, [gameOpen, joined, player1, roomName]);
 

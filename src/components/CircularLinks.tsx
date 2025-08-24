@@ -248,6 +248,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 }}
                 layout
                 index={index}
+                activeId={gameId}
                 onClick={() => {
                   if (gameOpen) {
                     handleClick(pos.id);
