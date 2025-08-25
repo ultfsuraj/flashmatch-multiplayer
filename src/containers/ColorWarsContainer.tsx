@@ -48,15 +48,15 @@ const ColorWarsContainer = ({
 
   const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
-    console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
+    // console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     setPlayer2(payload.playerName);
-    console.log('inside COLOR WARS ');
-    console.log('player 2 ', GAMES[index].name);
+    // console.log('inside COLOR WARS ');
+    // console.log('player 2 ', GAMES[index].name);
     if (!socket) return;
     const prevState = JSON.parse(
       localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{"roomName":""}}'
     );
-    console.log('broadcasting to new joiner ', prevState);
+    // console.log('broadcasting to new joiner ', prevState);
     if (prevState && prevState.lastUpdated) broadcastGameState(socket, 'syncGameState', prevState);
   }, []);
 
@@ -73,14 +73,15 @@ const ColorWarsContainer = ({
         state: GameState;
       }
     ) => {
-      console.log('received game state  ', payload);
+      // console.log('received game state  ', payload);
       dispatch(syncGame(payload));
     },
     []
   );
 
   useEffect(() => {
-    if (socket && gameOpen && index == activeId) {
+    if (index != activeId) return;
+    if (socket && gameOpen) {
       socket.on(playerJoined, playerJoinedHandler);
       socket.on(makeMove, makeMoveHandler);
       socket.on(syncGameState, syncGameHandler);
@@ -92,24 +93,23 @@ const ColorWarsContainer = ({
     if (Date.now() - localState.lastUpdated > TimeOut || (roomName.length && localState.state.roomName != roomName)) {
       localStorage.removeItem(GAMES[index].name);
     }
-    console.log('inside COLOR WARS ', GAMES[index].name);
-    console.log('from local storage on mount', localState);
+    // console.log('inside COLOR WARS ', GAMES[index].name);
+    // console.log('from local storage on mount', localState);
 
     if (gameOpen && socket && joined) {
       if (localState && localState.lastUpdated) {
         broadcastGameState(socket, 'syncGameState', localState);
-        console.log('synced from local ', localState);
+        // console.log('synced from local ', localState);
         if (localState.state.roomName == roomName) dispatch(syncGame(localState));
       }
     }
 
     return () => {
       if (gameOpen && joined) {
-        console.log('game closed');
+        // console.log('game closed');
         const exit: Events['exitRoom']['name'] = 'exitRoom';
         if (socket) exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
         setJoined(false);
-        dispatch(updateColor(true));
         setPlayer1('');
         setPlayer2('');
       }
@@ -181,15 +181,20 @@ const ColorWarsContainer = ({
                         'joinRoom',
                         { gameName: GAMES[index].name, playerName, roomid: room },
                         (order: number, error?: string) => {
-                          if (order == 2) {
-                            dispatch(updateColor(false));
-                          }
                           if (!error) {
                             setJoined(true);
                             setPlayer1(playerName);
                             if (room != (storedRoom || roomName)) {
                               localStorage.removeItem(GAMES[index].name);
                               dispatch(resetGame());
+                            }
+                            if (order == 2) {
+                              // console.log('--- ', order, playerName);
+                              dispatch(updateColor(false));
+                            }
+                            if (order == 1) {
+                              // console.log('--- ', order, playerName);
+                              dispatch(updateColor(true));
                             }
                           } else {
                             setJoinError(error);
@@ -222,6 +227,7 @@ export default ColorWarsContainer;
 
 function TurnIndicator({ player1, player2, bottom }: { player1: string; player2: string; bottom: boolean }) {
   const { turn, color, color1, color2 } = useAppSelector((state) => state.colorWarsState.gameInfo);
+  // console.log({ player1, player2, color });
   return (
     <>
       {bottom && (

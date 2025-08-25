@@ -44,15 +44,15 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
 
   const playerJoined: Events['playerJoined']['name'] = 'playerJoined';
   const playerJoinedHandler = useCallback((payload: Events['playerJoined']['payload']) => {
-    console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
+    // console.log('Player ' + payload.order + ' ' + payload.playerName + ' joined');
     setPlayer2(payload.playerName);
-    console.log('inside CHESS ');
-    console.log('player 2 ', GAMES[index].name);
+    // console.log('inside CHESS ');
+    // console.log('player 2 ', GAMES[index].name);
     if (!socket) return;
     const prevState = JSON.parse(
       localStorage.getItem(GAMES[index].name) ?? '{"lastUpdated":-1,"state":{"roomName":""}}'
     );
-    console.log('broadcasting to new joiner ', prevState);
+    // console.log('broadcasting to new joiner ', prevState);
     if (prevState && prevState.lastUpdated) broadcastGameState(socket, 'syncGameState', prevState);
   }, []);
 
@@ -64,14 +64,15 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
         state: GameStateType;
       }
     ) => {
-      console.log('received game state  ', payload);
+      // console.log('received game state  ', payload);
       dispatch(syncGame(payload));
     },
     []
   );
 
   useEffect(() => {
-    if (socket && gameOpen && index == activeId) {
+    if (index != activeId) return;
+    if (socket && gameOpen) {
       socket.on(playerJoined, playerJoinedHandler);
       socket.on(makeMove, makeMoveHandler);
       socket.on(syncGameState, syncGameHandler);
@@ -80,7 +81,7 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
     const localState = JSON.parse(
       localStorage.getItem(GAMES[index].name) || '{"lastUpdated":-1,"state":{"roomName":""}}'
     );
-    console.log('stored in local storage ', localState);
+    // console.log('stored in local storage ', localState);
     if (Date.now() - localState.lastUpdated > TimeOut || (roomName.length && localState.state.roomName != roomName)) {
       localStorage.removeItem(GAMES[index].name);
     }
@@ -89,20 +90,19 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
       if (localState && localState.lastUpdated) {
         broadcastGameState(socket, 'syncGameState', localState);
         if (localState.state.roomName == roomName) {
-          console.log('inside CHESS ', GAMES[index].name);
-          console.log('synced from local ', localState);
+          // console.log('inside CHESS ', GAMES[index].name);
+          // console.log('synced from local ', localState);
           dispatch(syncGame(localState));
         }
       }
     }
     return () => {
       if (gameOpen && joined) {
-        console.log('game closed');
+        // console.log('game closed');
         const exit: Events['exitRoom']['name'] = 'exitRoom';
         if (socket) exitRoom(socket, exit, { gameName: GAMES[index].name, playerName: player1, roomid: roomName });
         setJoined(false);
         setWhite(true);
-        dispatch(updateColor(true));
         setPlayer1('');
         setPlayer2('');
       }
@@ -201,16 +201,20 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
                           'joinRoom',
                           { gameName: GAMES[index].name, playerName, roomid: room },
                           (order: number, error?: string) => {
-                            if (order == 2) {
-                              setWhite(false);
-                              dispatch(updateColor(false));
-                            }
                             if (!error) {
                               setJoined(true);
                               setPlayer1(playerName);
                               if (room != (storedRoom || roomName)) {
                                 localStorage.removeItem(GAMES[index].name);
                                 dispatch(resetGame());
+                              }
+                              if (order == 2) {
+                                setWhite(false);
+                                dispatch(updateColor(false));
+                              }
+                              if (order == 1) {
+                                setWhite(true);
+                                dispatch(updateColor(true));
                               }
                             } else {
                               setJoinError(error);

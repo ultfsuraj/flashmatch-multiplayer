@@ -26,7 +26,7 @@ export const broadcastMove = (
     if (res.success) {
       if (callback) callback(res.order || 0);
     } else {
-      console.log(" couldn't send updated move, (update) should be reverted " + res.error);
+      // console.log(" couldn't send updated move, (update) should be reverted " + res.error);
     }
   });
 };
@@ -41,7 +41,7 @@ export const broadcastGameState = (
     if (res.success) {
       if (callback) callback(res.order || 0);
     } else {
-      console.log("Couldn't send gamestate for sync");
+      // console.log("Couldn't send gamestate for sync");
     }
   });
 };
@@ -56,7 +56,7 @@ export const exitRoom = (
     if (res.success) {
       if (callback) callback(res.order || 0);
     } else {
-      console.log(" couldn't send updated move, (update) should be reverted " + res.error);
+      // console.log(" couldn't send updated move, (update) should be reverted " + res.error);
     }
   });
 };
