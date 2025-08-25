@@ -54,12 +54,14 @@ export const chessSlice = createSlice({
     },
     updatePiece: (
       state,
-      action: PayloadAction<Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>>
+      action: PayloadAction<
+        { roomName: string } & Pick<pieceType, 'id' | 'x' | 'y'> & Partial<Omit<pieceType, 'id' | 'x' | 'y'>>
+      >
     ) => {
-      const { id, x, y } = action.payload;
-      console.log('piece id ', id);
+      const { id, x, y, roomName } = action.payload;
+      // console.log('piece id ', id);
       if (state.pieceIDs.filter((pieceID) => pieceID == id).length == 0) return;
-      console.log(state.pieces[id].color ? 'white' : 'black' + ' moved');
+      // console.log(state.pieces[id].color ? 'white' : 'black' + ' moved');
       const newState = makeMove(id, x, y, state.pieces, [...state.pieceIDs]);
       state.pieceIDs = newState.pieceIDs;
       state.pieces = newState.pieces;
@@ -71,11 +73,12 @@ export const chessSlice = createSlice({
       // we'll see that on next color's move
       const gameName: keyof typeof Games = 'chess';
       const gameState: Events['syncGameState']['payload'] & {
-        state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+        state: { turn: number; roomName: string; pieceIDs: number[]; pieces: Record<number, pieceType> };
       } = {
         lastUpdated: state.gameInfo.lastUpdated,
         state: {
           turn: state.gameInfo.turn,
+          roomName,
           pieces: newState.pieces,
           pieceIDs: newState.pieceIDs,
         },
@@ -156,13 +159,14 @@ export const chessSlice = createSlice({
       state,
       action: PayloadAction<
         Events['syncGameState']['payload'] & {
-          state: { turn: number; pieceIDs: number[]; pieces: Record<number, pieceType> };
+          state: { turn: number; roomName: string; pieceIDs: number[]; pieces: Record<number, pieceType> };
         }
       >
     ) => {
-      console.log('current state time ', state.gameInfo.lastUpdated);
+      // console.log('current state time ', state.gameInfo.lastUpdated);
       if (action.payload.lastUpdated <= state.gameInfo.lastUpdated) return;
-      console.log('to sync time ', action.payload.lastUpdated);
+      if (!action.payload.state.pieces) return;
+      // console.log('to sync time ', action.payload.lastUpdated);
       const lastUpdated = action.payload.lastUpdated;
       const { turn, pieceIDs, pieces } = action.payload.state;
       state.gameInfo.lastUpdated = lastUpdated;

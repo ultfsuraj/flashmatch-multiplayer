@@ -5,19 +5,27 @@ import { GAMES, ICONS } from ' @/utils/constants';
 
 export type NewGameContainerProps = {
   index: number;
+  activeId: number;
   iconHeight: number | string;
   gameOpen: boolean;
   onClick: () => void;
 } & HTMLMotionProps<'div'>;
 
-const NewGameContainer = ({ index, iconHeight, gameOpen, onClick, ...MotionDivProps }: NewGameContainerProps) => {
+const NewGameContainer = ({
+  index,
+  activeId,
+  iconHeight,
+  gameOpen,
+  onClick,
+  ...MotionDivProps
+}: NewGameContainerProps) => {
   return (
     <motion.div
-      className="flex h-full w-full flex-col items-center justify-between overflow-hidden py-3 pt-4 font-semibold text-neutral-900 *:flex"
+      className="flex h-full w-full flex-col items-center justify-between overflow-hidden font-semibold text-neutral-900 *:flex"
       style={{ backgroundImage: GAMES[index].bgImage }}
       {...MotionDivProps}
     >
-      <div className="flex w-full items-center justify-between p-2">
+      <div className="flex w-full items-center justify-between p-2 pt-3">
         <motion.img
           className="flex-center pointer-events-none top-0 left-0 rounded-full bg-cover bg-no-repeat"
           initial={false}

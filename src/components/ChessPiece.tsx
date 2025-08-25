@@ -8,9 +8,9 @@ import { broadcastMove } from ' @/utils/wss';
 import { HTMLMotionProps, motion } from 'motion/react';
 import Image from 'next/image';
 
-type ChessPieceProps = { pieceId: number } & HTMLMotionProps<'div'>;
+type ChessPieceProps = { pieceId: number; roomName: string } & HTMLMotionProps<'div'>;
 
-const ChessPiece = ({ pieceId, ...MotionDivProps }: ChessPieceProps) => {
+const ChessPiece = ({ pieceId, roomName, ...MotionDivProps }: ChessPieceProps) => {
   const piece = useAppSelector((state) => state.chessState.pieces[pieceId]);
   const moves = useAppSelector((state) => state.chessState.moves[pieceId]);
   const dispatch = useAppDispatch();
@@ -45,12 +45,12 @@ const ChessPiece = ({ pieceId, ...MotionDivProps }: ChessPieceProps) => {
             className="flex-center z-10 h-full w-full"
             style={{ gridRowStart: y, gridColumnStart: x }}
             onClick={() => {
-              dispatch(updatePiece({ ...piece, x, y }));
+              dispatch(updatePiece({ ...piece, x, y, roomName }));
               // broadcast move, what payload is sent, that will be received, (full client side control)
               if (socket) {
-                broadcastMove(socket, 'makeMove', { ...piece, x, y });
+                broadcastMove(socket, 'makeMove', { ...piece, x, y, roomName });
               } else {
-                console.log("no socket connection, move didn't reach opponent");
+                // // console.log("no socket connection, move didn't reach opponent");
               }
             }}
           >

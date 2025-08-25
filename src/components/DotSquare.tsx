@@ -1,23 +1,36 @@
 'use client';
 
-import { AnimatePresence, LayoutGroup, motion, useAnimation } from 'motion/react';
-import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { LayoutGroup, motion, useAnimation } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from ' @/utils/cn';
 import { increaseTurn, spread } from ' @/redux/features/colorWarsSlice';
 import { useAppDispatch, useAppSelector } from ' @/redux/hooks';
+import { broadcastMove } from ' @/utils/wss';
+import { useSocket } from ' @/containers/SocketProvider';
 
-const DotSquare = ({ id }: { id: number }) => {
+const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const cell = useAppSelector((state) => state.colorWarsState.cells[id]);
-  const { count, flip, backColor, frontColor } = cell;
+  const { color, color1, color2, neutralColor, turn } = useAppSelector((state) => state.colorWarsState.gameInfo);
+  const { count, frontColor } = cell;
   const flipControls = useAnimation();
+  const socket = useSocket()?.current;
 
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
   const handleClick = () => {
+    if ((turn % 2 == 1) != color) return;
+    if (turn > 2 && frontColor == neutralColor) return;
+    if (frontColor == (color ? color2 : color1)) return;
     if (!isAnimating && count < 4) {
-      dispatch(increaseTurn(id));
+      dispatch(increaseTurn({ id, roomName }));
+      if (socket) {
+        // // console.log('broadcasting move ', cell);
+        broadcastMove(socket, 'makeMove', { id, roomName });
+      } else {
+        // // console.log("no socket connection, move didn't reach opponent");
+      }
     }
   };
 
@@ -28,7 +41,7 @@ const DotSquare = ({ id }: { id: number }) => {
       if (count > 3) {
         setTimeout(
           () => {
-            dispatch(spread(id));
+            dispatch(spread({ id, roomName }));
           },
           Math.round(100 + Math.random() * 200)
         );

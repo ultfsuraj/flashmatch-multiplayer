@@ -149,13 +149,13 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           height: 2 * r,
           width: 2 * r,
           x: -(2 * r - w),
-          y: -10,
+          y: 1,
           backgroundImage: 'radial-gradient(circle at center, #000000 0%,#0a1026 60%, #fff 100%)',
         }}
       >
         {/* controller  */}
         <motion.div
-          className="absolute h-32 w-32 rounded-full border border-neutral-500 bg-transparent"
+          className="absolute aspect-square h-[23%] rounded-full border border-neutral-500 bg-transparent"
           ref={div1Ref}
           style={{
             x: circX(0),
@@ -166,9 +166,11 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
         ></motion.div>
         {/* game name */}
         <motion.div
-          className="font-bangers flex-center absolute h-32 bg-transparent px-4 text-lg font-semibold text-white"
+          className="font-bangers flex-center absolute justify-start bg-transparent pl-3 text-lg font-semibold text-white"
           style={{
-            x: circX(0) - w + (div1Ref.current?.offsetWidth || 130) / 2,
+            height: div1Ref.current?.offsetWidth || 120,
+            width: div1Ref.current?.offsetWidth || 120,
+            x: circX(0) - w + (div1Ref.current?.offsetWidth || 120) / 2,
             y: circY(0),
           }}
         >
@@ -177,10 +179,12 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
 
         {/* arrows */}
         <motion.div
-          className="font-bangers flex-center absolute h-32 cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          className="font-bangers flex-center absolute cursor-pointer bg-transparent px-4 text-2xl font-semibold text-white select-none"
           style={{
-            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 130),
-            y: circY(0) - 0.9 * (div1Ref.current?.offsetWidth || 130),
+            height: div1Ref.current?.offsetWidth || 120,
+            width: div1Ref.current?.offsetWidth || 120,
+            x: circX(0) + 0.6 * (div1Ref.current?.offsetWidth || 120),
+            y: circY(0) - 0.9 * (div1Ref.current?.offsetWidth || 120),
             rotateZ: -90,
           }}
           onClick={() => handleDragEnd(false)}
@@ -188,10 +192,12 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
           {'>>>>'}
         </motion.div>
         <motion.div
-          className="font-bangers flex-center absolute h-32 cursor-pointer bg-transparent px-4 text-3xl font-semibold text-white select-none"
+          className="font-bangers flex-center absolute cursor-pointer bg-transparent px-4 text-2xl font-semibold text-white select-none"
           style={{
-            x: circX(0) + 0.8 * (div1Ref.current?.offsetWidth || 130),
-            y: circY(0) + (div1Ref.current?.offsetWidth || 130),
+            height: div1Ref.current?.offsetWidth || 120,
+            width: div1Ref.current?.offsetWidth || 120,
+            x: circX(0) + 0.6 * (div1Ref.current?.offsetWidth || 120),
+            y: circY(0) + (div1Ref.current?.offsetWidth || 120),
             rotateZ: 90,
           }}
           onClick={() => handleDragEnd(true)}
@@ -210,16 +216,19 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
             <LazyComponent
               parentRef={containerRef}
               key={pos.id}
-              className="flex-center absolute h-32 w-32 overflow-hidden"
+              className="flex-center absolute overflow-hidden"
               style={{
+                height: div1Ref.current?.offsetWidth || 120,
+                width: div1Ref.current?.offsetWidth || 120,
                 x: pos.x,
                 y: pos.y,
                 scale: pos.scale,
                 backgroundImage: GAMES[pos.id].bgImage,
                 userSelect: gameOpen && pos.id == gameId ? 'none' : 'auto',
                 touchAction: gameOpen && pos.id == gameId ? 'none' : 'auto',
-                borderRadius: gameOpen && pos.id == gameId ? '0%' : '50%',
+                borderRadius: '50%',
               }}
+              layout
               initial={false}
               animate={controlsARR.current[pos.id]}
               drag={open ? false : 'y'}
@@ -239,6 +248,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
                 }}
                 layout
                 index={index}
+                activeId={gameId}
                 onClick={() => {
                   if (gameOpen) {
                     handleClick(pos.id);
