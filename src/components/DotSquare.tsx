@@ -26,10 +26,10 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
     if (!isAnimating && count < 4) {
       dispatch(increaseTurn({ id, roomName }));
       if (socket) {
-        // // console.log('broadcasting move ', cell);
+        // console.log('broadcasting move ', cell);
         broadcastMove(socket, 'makeMove', { id, roomName });
       } else {
-        // // console.log("no socket connection, move didn't reach opponent");
+        // console.log("no socket connection, move didn't reach opponent");
       }
     }
   };
@@ -37,14 +37,9 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
   useEffect(() => {
     const { count, id, flip } = cell;
     async function animateSpread() {
-      await flipControls.start({ rotateY: flip, transition: { duration: 0.4 } });
+      await flipControls.start({ rotateY: flip, transition: { duration: 0.5 } });
       if (count > 3) {
-        setTimeout(
-          () => {
-            dispatch(spread({ id, roomName }));
-          },
-          Math.round(100 + Math.random() * 200)
-        );
+        dispatch(spread({ id, roomName }));
       }
     }
     setIsAnimating(true);
@@ -63,10 +58,9 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
         <motion.div layout className={cn('absolute h-full w-full rounded-md p-1', frontColor)}>
           <div ref={ref} className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id={`front-${id}`}>
-              {Array.from({ length: count % 5 }, (_, index) => (
+              {Array.from({ length: count > 4 ? count - 4 : count }, (_, index) => (
                 <motion.div
                   layout
-                  layoutId={`${id}f${index}`}
                   key={index}
                   className="rounded-[50%] bg-neutral-800"
                   style={{
@@ -80,7 +74,7 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
           </div>
         </motion.div>
         {/* back side */}
-        <motion.div
+        {/* <motion.div
           layout
           className={cn('absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md p-1', frontColor)}
         >
@@ -101,7 +95,7 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
               ))}
             </LayoutGroup>
           </div>
-        </motion.div>
+        </motion.div> */}
       </motion.div>
     </div>
   );

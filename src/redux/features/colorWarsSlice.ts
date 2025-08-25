@@ -115,8 +115,8 @@ export const gameSlice = createSlice({
       nextCells.forEach((adjId) => {
         const next = { ...state.cells[adjId] };
         next.count += 1;
+        next.flip += 180;
         if (next.frontColor != srcColor) {
-          next.flip += 180;
           switch (next.frontColor) {
             case color1:
               state.regions.one -= 1;
@@ -142,12 +142,14 @@ export const gameSlice = createSlice({
       }
 
       state.cells[id] = {
+        ...state.cells[id],
         id,
         count: state.cells[id].count - 4,
         flip: state.cells[id].flip + 180,
-        frontColor: neutralColor,
-        backColor: neutralColor,
       };
+      if (state.cells[id].count == 0) {
+        state.cells[id].frontColor = neutralColor;
+      }
 
       state.gameInfo.lastUpdated = Date.now();
 
