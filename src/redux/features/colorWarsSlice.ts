@@ -178,10 +178,10 @@ export const gameSlice = createSlice({
         }
       >
     ) => {
-      console.log('current state time ', state.gameInfo.lastUpdated);
+      // console.log('current state time ', state.gameInfo.lastUpdated);
       if (action.payload.lastUpdated <= state.gameInfo.lastUpdated) return;
       if (!action.payload.state.cells) return;
-      console.log('to sync time ', action.payload.lastUpdated);
+      // console.log('to sync time ', action.payload.lastUpdated);
       const lastUpdated = action.payload.lastUpdated;
       const { turn, cells, regions } = action.payload.state;
       state.gameInfo.lastUpdated = lastUpdated;

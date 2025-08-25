@@ -50,7 +50,7 @@ const ChessPiece = ({ pieceId, roomName, ...MotionDivProps }: ChessPieceProps) =
               if (socket) {
                 broadcastMove(socket, 'makeMove', { ...piece, x, y, roomName });
               } else {
-                console.log("no socket connection, move didn't reach opponent");
+                // // console.log("no socket connection, move didn't reach opponent");
               }
             }}
           >

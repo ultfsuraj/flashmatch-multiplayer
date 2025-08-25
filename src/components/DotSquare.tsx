@@ -26,10 +26,10 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
     if (!isAnimating && count < 4) {
       dispatch(increaseTurn({ id, roomName }));
       if (socket) {
-        console.log('broadcasting move ', cell);
+        // // console.log('broadcasting move ', cell);
         broadcastMove(socket, 'makeMove', { id, roomName });
       } else {
-        console.log("no socket connection, move didn't reach opponent");
+        // // console.log("no socket connection, move didn't reach opponent");
       }
     }
   };
