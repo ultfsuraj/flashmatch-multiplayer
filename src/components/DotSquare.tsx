@@ -60,7 +60,7 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
         onAnimationComplete={() => setIsAnimating(false)}
       >
         {/* front side */}
-        <motion.div layout className={cn('absolute h-full w-full rounded-md p-1 backface-hidden', frontColor)}>
+        <motion.div layout className={cn('absolute h-full w-full rounded-md p-1', frontColor)}>
           <div ref={ref} className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id={`front-${id}`}>
               {Array.from({ length: count % 5 }, (_, index) => (
@@ -82,7 +82,7 @@ const DotSquare = ({ id, roomName }: { id: number; roomName: string }) => {
         {/* back side */}
         <motion.div
           layout
-          className={cn('absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md p-1 backface-hidden', frontColor)}
+          className={cn('absolute h-full w-full -scale-x-100 rotate-y-180 rounded-md p-1', frontColor)}
         >
           <div className="flex-center h-full w-full flex-wrap justify-around">
             <LayoutGroup id={`back-${id}`}>
