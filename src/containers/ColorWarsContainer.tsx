@@ -154,65 +154,70 @@ const ColorWarsContainer = ({
 
       {/* grid */}
       <TurnIndicator player1={player1} player2={player2} bottom={false} />
-      <AnimatePresence mode="wait">
-        {gameOpen && (
-          <motion.div
-            layout
-            className="grid aspect-square w-[90%] gap-2 rounded-md bg-neutral-800 p-2 drop-shadow-xl drop-shadow-neutral-400"
-            style={{
-              gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-              gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
-            }}
-            exit={{ scale: 0.1, y: -100, transition: { type: 'spring', duration: 0.3, bounce: 0.1 } }}
-          >
-            {Object.values(cellItems).map((cell) => (
-              <DotSquare key={cell.id} id={cell.id} roomName={roomName} />
-            ))}
-
-            {/* join form */}
-            {!joined && gameOpen && (
-              <div className="flex-center absolute h-full w-full drop-shadow-2xl">
-                <RoomJoinForm
-                  onClick={(playerName, room) => {
-                    setRoomName(room);
-                    if (socket)
-                      joinRoom(
-                        socket,
-                        'joinRoom',
-                        { gameName: GAMES[index].name, playerName, roomid: room },
-                        (order: number, error?: string) => {
-                          if (!error) {
-                            setJoined(true);
-                            setPlayer1(playerName);
-                            if (room != (storedRoom || roomName)) {
-                              localStorage.removeItem(GAMES[index].name);
-                              dispatch(resetGame());
-                            }
-                            if (order == 2) {
-                              // console.log('--- ', order, playerName);
-                              dispatch(updateColor(false));
-                            }
-                            if (order == 1) {
-                              // console.log('--- ', order, playerName);
-                              dispatch(updateColor(true));
-                            }
-                          } else {
-                            setJoinError(error);
-                            setTimeout(() => {
-                              setJoinError('');
-                            }, 2000);
-                          }
-                        }
-                      );
-                  }}
-                  className="w-[75%]"
-                  errMsg={joinError}
-                />
+      <div className="aspect-square w-[95%]">
+        <AnimatePresence mode="wait">
+          {gameOpen && (
+            <motion.div
+              className="flex-center relative h-full w-full"
+              layout
+              exit={{ scale: 0.1, y: -100, transition: { type: 'spring', duration: 0.3, bounce: 0.1 } }}
+            >
+              <div
+                className="absolute grid aspect-square w-[90%] gap-2 rounded-md bg-neutral-800 p-2 drop-shadow-xl drop-shadow-neutral-400"
+                style={{
+                  gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+                  gridTemplateColumns: `repeat(${rows}, minmax(0, 1fr))`,
+                }}
+              >
+                {Object.values(cellItems).map((cell) => (
+                  <DotSquare key={cell.id} id={cell.id} roomName={roomName} />
+                ))}
               </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* join form */}
+              {!joined && gameOpen && (
+                <div className="flex-center absolute z-10 h-full w-full drop-shadow-2xl">
+                  <RoomJoinForm
+                    onClick={(playerName, room) => {
+                      setRoomName(room);
+                      if (socket)
+                        joinRoom(
+                          socket,
+                          'joinRoom',
+                          { gameName: GAMES[index].name, playerName, roomid: room },
+                          (order: number, error?: string) => {
+                            if (!error) {
+                              setJoined(true);
+                              setPlayer1(playerName);
+                              if (room != (storedRoom || roomName)) {
+                                localStorage.removeItem(GAMES[index].name);
+                                dispatch(resetGame());
+                              }
+                              if (order == 2) {
+                                // console.log('--- ', order, playerName);
+                                dispatch(updateColor(false));
+                              }
+                              if (order == 1) {
+                                // console.log('--- ', order, playerName);
+                                dispatch(updateColor(true));
+                              }
+                            } else {
+                              setJoinError(error);
+                              setTimeout(() => {
+                                setJoinError('');
+                              }, 2000);
+                            }
+                          }
+                        );
+                    }}
+                    className="w-[75%]"
+                    errMsg={joinError}
+                  />
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       <TurnIndicator player1={player1} player2={player2} bottom={true} />
 
       <div></div>

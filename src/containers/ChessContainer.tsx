@@ -191,7 +191,7 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
               </div>
               {/* join form */}
               {!joined && gameOpen && (
-                <div className="flex-center h-full w-full drop-shadow-2xl">
+                <div className="flex-center absolute z-20 h-full w-full drop-shadow-2xl">
                   <RoomJoinForm
                     onClick={(playerName, room) => {
                       setRoomName(room);
