@@ -22,6 +22,13 @@ export const metadata: Metadata = {
   description: 'Instantly set a match, play games online with friends',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: 'no',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
