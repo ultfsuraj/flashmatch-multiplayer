@@ -14,7 +14,7 @@
 
 ## Developer
 
-`React.js` `Next.js` `Redux` `Socket.io` `Node.js` `motion` `TypeScript` ` Tailwind CSS `
+`React.js` `Next.js` `Redux toolkit` `Socket.io` `Node.js` `motion` `TypeScript` ` Tailwind CSS `
 
 This project consists of 3 repos
 
