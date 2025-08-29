@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# [FlashMatch multiplayer 🔗](https://flashmatch-multiplayer.vercel.app/)
 
-## Getting Started
+#### online multiplayer game website, choose game, join room, share room with friends
 
-First, run the development server:
+## Usage
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Right now TWO games are available. CHESS, COLOR WARS (fast and fun)
+2. Swipe icons up/down or click on arrows, click on icon for the game you want to play
+3. Choose a ROOM name and player name, share the ROOM for others to join
+4. Indicators shows whose turn it is, to avoid confusion
+5. In case of network failure, accidentally closing the game or other issues, you can rejoin with same ROOM name and player name to restore the latest game state.
+6. Both of you can use the same ROOM name and player names to play another game, new room name creates an entirely new game.
+7. The game is reset with new room name, or only if all the players in a room are disconnected for more than 5-10 minutes.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Developer
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`React.js` `Next.js` `Redux` `Socket.io` `Node.js` `motion` `TypeScript`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project consists of 3 repos
 
-## Learn More
+1. [flashmatch-multiplayer](https://github.com/ultfsuraj/flashmatch-multiplayer) home website frontend
+2. [flashmatch-multiplayer-wss](https://github.com/ultfsuraj/flashmatch-multiplayer-wss) backend with socket.io wrapper
+3. [flashmatch-multiplayer-shared](https://github.com/ultfsuraj/flashmatch-multiplayer-shared) dependency package for shared types in frontend and backend
 
-To learn more about Next.js, take a look at the following resources:
+### Run locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. clone / zip wss backend, install and run it
+2. clone / zip frontend, install and run it
+3. any update you make on shared types, push it then do `npm update 'shared types repo'` on both backend and frontend repo on editor
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Game state is managed on client side. Which makes syncing game turns and events a bit complex, but reduces server load.
 
-## Deploy on Vercel
+Broadcasting only moves and not entire game state reduces bandwidth usage during game play but complexity increases to manage turn sync, possibility of state out sync due to animation timing mismatchs and handling interference of socket event listeners from other games.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Play the games with your friends and comment any issues you face. 😊
