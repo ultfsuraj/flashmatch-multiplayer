@@ -16,11 +16,11 @@ export const ICONS: string[] = [
   'https://www.svgrepo.com/show/521343/crying-face.svg',
   'https://www.svgrepo.com/show/521344/confused-face.svg',
   'https://www.svgrepo.com/show/521348/drooling-face.svg',
+  'https://www.svgrepo.com/show/521366/face-with-rolling-eyes.svg',
+  'https://www.svgrepo.com/show/521386/kissing-face.svg',
+  'https://www.svgrepo.com/show/521378/grinning-face-with-big-eyes.svg',
   'https://www.svgrepo.com/show/521355/face-savoring-food.svg',
   'https://www.svgrepo.com/show/521368/face-with-tears-of-joy.svg',
-  'https://www.svgrepo.com/show/521366/face-with-rolling-eyes.svg',
-  'https://www.svgrepo.com/show/521378/grinning-face-with-big-eyes.svg',
-  'https://www.svgrepo.com/show/521386/kissing-face.svg',
 ];
 
 export const GAMES: Array<{ name: keyof typeof Games; bgImage: string }> = [
@@ -30,11 +30,11 @@ export const GAMES: Array<{ name: keyof typeof Games; bgImage: string }> = [
     name: 'ludo',
     bgImage: 'linear-gradient(-225deg, #231557 0%, #44107A 29%, #FF1361 67%, #FFF800 100%)',
   },
+  { name: 'chess', bgImage: 'linear-gradient(310deg, #a55c1b 0%, #000000 74%)' },
+  { name: 'colorWars', bgImage: 'linear-gradient(147deg, #000000 0%, #2c3e50 74%)' },
+  { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #E84393 100%)' },
   { name: 'ludo', bgImage: 'linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)' },
   { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #166D3B 100%)' },
-  { name: 'chess', bgImage: 'linear-gradient(310deg, #a55c1b 0%, #000000 74%)' },
-  { name: 'ludo', bgImage: 'linear-gradient(135deg, #000000 0%, #E84393 100%)' },
-  { name: 'colorWars', bgImage: 'linear-gradient(147deg, #000000 0%, #2c3e50 74%)' },
 ];
 
 export const BLACK_PIECES: Record<string, string> = {

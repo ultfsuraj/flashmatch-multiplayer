@@ -20,13 +20,13 @@ for (let i = 0; i < 8; i++) {
   );
 }
 
-DYNAMIC_COMPONENTS[5] = lazy(
+DYNAMIC_COMPONENTS[3] = lazy(
   () =>
     new Promise<typeof import(' @/containers/ChessContainer')>((resolve) =>
       setTimeout(() => resolve(import(' @/containers/ChessContainer')), 1000)
     )
 );
-DYNAMIC_COMPONENTS[7] = lazy(
+DYNAMIC_COMPONENTS[4] = lazy(
   () =>
     new Promise<typeof import(' @/containers/ColorWarsContainer')>((resolve) =>
       setTimeout(() => resolve(import(' @/containers/ColorWarsContainer')), 1000)
@@ -209,7 +209,7 @@ const CircularLinks = ({ isReady }: { isReady: () => void }) => {
 
         {POSITIONS.map((pos, index) => {
           let Dynamic;
-          if (index == 7) Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ColorWarsContainerProps>;
+          if (index == 4) Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ColorWarsContainerProps>;
           else Dynamic = DYNAMIC_COMPONENTS[index] as ComponentType<ChessContainerProps>;
 
           return (
