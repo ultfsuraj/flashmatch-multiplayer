@@ -11,6 +11,7 @@
 5. In case of network failure, accidentally closing the game or other issues, you can rejoin with same ROOM name and player name to restore the latest game state.
 6. Both of you can use the same ROOM name and player names to play another game, new room name creates an entirely new game.
 7. The game is reset with new room name, or only if all the players in a room are disconnected for more than 5-10 minutes.
+8. YOU MAY EXPERIENCE A DOWN TIME OF 50s OR MORE IF SERVER IS DOWN DUE TO INACTIVITY
 
 ## Developer
 
