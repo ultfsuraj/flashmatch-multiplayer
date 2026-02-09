@@ -256,6 +256,11 @@ function TurnIndicator({ player1, player2, bottom }: { player1: string; player2:
             )}
           ></div>
           <span> {player1 && !player2 ? 'waiting for opponent' : player2 ? `@ ${player2}` : ''}</span>
+          {!player1 && !player2 ? (
+            <span className="text-center text-xs text-white">
+              Server is down at the moment. Please try after a minute.
+            </span>
+          ) : null}
           <div className="w-7"></div>
         </div>
       )}

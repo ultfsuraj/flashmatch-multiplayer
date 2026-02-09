@@ -150,6 +150,11 @@ const ChessContainer = ({ index, activeId, iconHeight, gameOpen, onClick, ...Mot
           className={cn('h-5 w-7 rounded-sm', player2 && (turn % 2 == 1) != color ? 'bg-neutral-50' : 'bg-transparent')}
         ></div>
         <span> {player1 && !player2 ? 'waiting for opponent' : player2 ? `@ ${player2}` : ''}</span>
+        {!player1 && !player2 ? (
+          <span className="text-center text-xs text-white">
+            Server is down at the moment. Please try after a minute.
+          </span>
+        ) : null}
         <div className="w-7"></div>
       </div>
       <div className="aspect-square w-[95%] drop-shadow-2xl drop-shadow-amber-950">
